@@ -3,4 +3,6 @@
 __pycache__/
 *.py[cod]
 
-data/generated/generated_data
+data/generated/generated_data/synthetic_data.csv
+
+predictions.csv

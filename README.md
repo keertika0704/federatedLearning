@@ -32,3 +32,5 @@ and data into Supabase separately.
 
 
 brew install libomp
+
+.venv/bin/uvicorn backend.main:app --reload --port 8000

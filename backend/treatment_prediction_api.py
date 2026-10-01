@@ -23,9 +23,9 @@ and listed back in "missing_fields".
 
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Literal, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 PROJECT_ROOT = next(
@@ -36,6 +36,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from models.objectiveE.treatment_prediction.predict import TreatmentRecommender
+from backend.security import require_api_key
 
 router = APIRouter()
 
@@ -49,6 +50,13 @@ class RecommendRequest(BaseModel):
     top_k: Optional[int] = Field(None, ge=1)
 
 
+class TreatmentPlanRequest(BaseModel):
+    disease_id: str = Field(..., examples=["D001"])
+    severity_id: Literal["SV001", "SV002", "SV003"]
+    patient: Dict[str, Any]
+    top_k: int = Field(3, ge=1, le=10)
+
+
 @router.get("/api/treatment/health")
 def health():
     m = recommender.meta
@@ -60,6 +68,13 @@ def health():
 @router.post("/api/treatment/recommend")
 def recommend(req: RecommendRequest):
     return recommend_for_patient(req.patient, req.disease_id, req.severity_id, req.top_k)
+
+
+@router.post("/recommend-treatment", dependencies=[Depends(require_api_key)])
+def recommend_treatment(req: TreatmentPlanRequest):
+    patient = dict(req.patient)
+    patient["gender"] = {"M": "Male", "F": "Female"}.get(patient.get("gender"), patient.get("gender"))
+    return recommend_for_patient(patient, req.disease_id, req.severity_id, req.top_k)
 
 
 def recommend_for_patient(patient: Dict[str, Any], disease_id: str, severity_id: str, top_k: Optional[int] = None):
