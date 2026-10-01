@@ -1,0 +1,56 @@
+﻿mapping_id,disease_id,symptom_id,frequency,mandatory,onset_stage
+DSM001,D001,S001 ,Very Common,Yes,Early
+DSM002,D001,S002,Common,No,Early
+DSM003,D001,S014,Very Common,Yes,Early
+DSM004,D001,S015 ,Common,No,Early
+DSM005,D001,S016 ,Common,No,Early
+DSM006,D001,S017,Common,No,Middle
+DSM007,D001,S018 ,Occasional,No,Middle
+DSM008,D001,S019,Occasional,No,Middle
+DSM009,D001,S025 ,Rare,No,Late
+DSM010,D002,S001 ,Very Common,Yes,Early
+DSM011,D002,S004 ,Very Common,Yes,Early
+DSM012,D002,S005 ,Very Common,Yes,Early
+DSM013,D002,S002,Common,No,Early
+DSM014,D002,S003,Common,No,Middle
+DSM015,D002,S018,Occasional,No,Middle
+DSM016,D002,S019,Occasional,No,Middle
+DSM017,D002,S026,Rare,No,Late
+DSM018,D003,S001,Very Common,Yes,Early
+DSM019,D003,S015,Very Common,Yes,Early
+DSM020,D003,S014,Very Common,Yes,Early
+DSM021,D003,S017,Common,No,Middle
+DSM022,D003,S003,Common,No,Middle
+DSM023,D003,S002,Common,No,Early
+DSM024,D004,S001,Very Common,Yes,Early
+DSM025,D004,S006,Very Common,Yes,Early
+DSM026,D004,S008,Common,No,Early
+DSM027,D004,S009,Common,No,Early
+DSM028,D004,S002,Common,No,Early
+DSM029,D004,S003,Common,No,Middle
+DSM030,D004,S014,Common,No,Early
+DSM031,D005,S001,Very Common,Yes,Early
+DSM032,D005,S006,Very Common,Yes,Early
+DSM033,D005,S003,Common,No,Early
+DSM034,D005,S012,Common,No,Middle
+DSM035,D005,S013,Common,No,Middle
+DSM036,D005,S010,Common,No,Late
+DSM037,D005,S008,Common,No,Early
+DSM038,D006,S007,Very Common,Yes,Early
+DSM039,D006,S001,Common,No,Middle
+DSM040,D006,S023,Very Common,Yes,Late
+DSM041,D006,S024,Common,No,Middle
+DSM042,D006,S003,Common,No,Middle
+DSM043,D006,S011,Occasional,No,Late
+DSM044,D007,S001,Very Common,Yes,Early
+DSM045,D007,S002,Common,No,Early
+DSM046,D007,S021,Common,No,Middle
+DSM047,D007,S020,Occasional,No,Middle
+DSM048,D007,S022,Common,No,Early
+DSM049,D007,S003,Common,No,Middle
+DSM050,D008,S020,Very Common,Yes,Early
+DSM051,D008,S019,Very Common,Yes,Early
+DSM052,D008,S021,Common,No,Early
+DSM053,D008,S018,Common,No,Early
+DSM054,D008,S001,Occasional,No,Middle
+DSM055,D008,S027,Common,No,Late

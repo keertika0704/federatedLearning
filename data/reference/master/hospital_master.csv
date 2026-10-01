@@ -1,0 +1,11 @@
+﻿hospital_id,hospital_name,city,state,hospital_type,level,beds ,node_name
+H001,AIIMS New Delhi,New Delhi,Delhi,Government,Tertiary Care,2500,Node_A
+H002,PGIMER Chandigarh,Chandigarh,Chandigarh,Government,Tertiary Care,1900,Node_B
+H003,JIPMER Puducherry,Puducherry,Puducherry,Government,Tertiary Care,2100,Node_C
+H004,CMC Vellore,Vellore,Tamil Nadu,Private Teaching,Teaching Hospital,3200,Node_D
+H005,KGMU Lucknow,Lucknow,Uttar Pradesh,Government,Medical College,4500,Node_E
+H006,NIMHANS Bengaluru,Bengaluru,Karnataka,Government,Specialty Hospital,900,Node_F
+H007,Safdarjung Hospital,New Delhi,Delhi,Government,Multi-specialty,2900,Node_G
+H008,King Edward Memorial Hospital,Mumbai,Maharashtra,Government,Teaching Hospital,1800,Node_H
+H009,Sree Chitra Tirunal Institute,Thiruvananthapuram,Kerala,Government,Research Hospital,700,Node_I
+H010,SMS Medical College Hospital,Jaipur,Rajasthan,Government,Medical College,3000,Node_J

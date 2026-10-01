@@ -1,0 +1,21 @@
+lab_id,lab_name,test_code,unit,reference_range_low,reference_range_high,result_type,body_system,description
+L001,Hemoglobin,HGB,g/dL,12.0,17.5,Numeric,Hematological,Measures haemoglobin concentration in blood.
+L002,White Blood Cell Count,WBC,10^3/uL,4.0,11.0,Numeric,Hematological,Measures circulating white blood cell count.
+L003,Platelet Count,PLT,10^3/uL,150.0,450.0,Numeric,Hematological,Measures platelet concentration in blood.
+L004,C-Reactive Protein,CRP,mg/L,0.0,10.0,Numeric,Inflammatory,Marker of systemic inflammation.
+L005,Serum Creatinine,CREAT,mg/dL,0.6,1.3,Numeric,Renal,Marker of kidney function.
+L006,Alanine Aminotransferase,ALT,U/L,7.0,56.0,Numeric,Hepatic,Marker of liver cell injury.
+L007,Aspartate Aminotransferase,AST,U/L,10.0,40.0,Numeric,Hepatic,Marker of liver and muscle injury.
+L008,Blood Glucose,GLU,mg/dL,70.0,140.0,Numeric,Metabolic,Measures blood glucose concentration.
+L009,Serum Sodium,NA,mmol/L,135.0,145.0,Numeric,Electrolyte,Measures sodium concentration.
+L010,Serum Potassium,K,mmol/L,3.5,5.1,Numeric,Electrolyte,Measures potassium concentration.
+L011,Bilirubin,TBIL,mg/dL,0.2,1.2,Numeric,Hepatic,Measures total bilirubin concentration.
+L012,Procalcitonin,PCT,ng/mL,0.0,0.5,Numeric,Inflammatory,Marker associated with systemic bacterial infection.
+L013,ESR,ESR,mm/hr,0.0,20.0,Numeric,Inflammatory,Measures erythrocyte sedimentation rate.
+L014,SpO2,SpO2,%,95.0,100.0,Numeric,Respiratory,Measures peripheral blood oxygen saturation.
+L015,Malaria Parasite Test,MP,Index,0.0,0.0,Binary,Infectious Disease,Indicates evidence of malaria parasite detection.
+L016,Dengue NS1 Antigen,NS1,Index,0.0,0.0,Binary,Infectious Disease,Indicates dengue NS1 antigen detection.
+L017,Dengue IgM,IGM-DEN,Index,0.0,0.0,Binary,Infectious Disease,Indicates dengue IgM detection.
+L018,Typhoid Serology,TYPH,Index,0.0,0.0,Binary,Infectious Disease,Indicates a positive typhoid serology result.
+L019,SARS-CoV-2 Test,COVID-PCR,Index,0.0,0.0,Binary,Infectious Disease,Indicates SARS-CoV-2 test detection.
+L020,Influenza Test,FLU-PCR,Index,0.0,0.0,Binary,Infectious Disease,Indicates influenza test detection.

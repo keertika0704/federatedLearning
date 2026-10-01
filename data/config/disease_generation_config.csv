@@ -1,0 +1,9 @@
+﻿disease_id,prevalence_weight,mild_percentage,moderate_percentage,severe_percentage,peak_start_month,peak_end_month,preferred_age_min,preferred_age_max,preferred_gender,outbreak_probability,average_daily_cases
+D001,14,70,22,8,June,October,15,45,Both,0.35,12
+D002,10,68,24,8,June,October,5,70,Both,0.25,8
+D003,3,75,20,5,July,October,18,60,Both,0.12,3
+D004,28,82,15,3,November,February,1,80,Both,0.18,24
+D005,18,75,18,7,January,December,18,80,Both,0.15,15
+D006,4,55,30,15,January,December,15,75,Both,0.08,2
+D007,7,70,22,8,April,September,5,40,Both,0.15,6
+D008,16,78,18,4,April,August,1,70,Both,0.2,14

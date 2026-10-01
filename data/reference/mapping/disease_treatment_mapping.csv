@@ -1,0 +1,33 @@
+﻿mapping_id,disease_id,severity_id,treatment_id,priority,first_line,referral_required,comments
+DTM001,D001,SV001,T001,1,Yes,No,Fever management
+DTM002,D001,SV001,T002,2,Yes,No,Maintain hydration
+DTM003,D001,SV002,T003,1,Yes,Yes,Fluid replacement
+DTM004,D001,SV003,T014,1,Yes,Yes,Close monitoring
+DTM005,D001,SV003,T012,2,Yes,Yes,Monitor platelet count
+DTM006,D002,SV001,T004,1,Yes,No,First-line antimalarial
+DTM007,D002,SV002,T004,1,Yes,No,Continue treatment
+DTM008,D002,SV003,T003,2,No,Yes,Supportive care
+DTM009,D002,SV003,T014,1,Yes,Yes,SV003 malaria management
+DTM010,D002,SV003,T005,3,No,Specialist Decision,Species-dependent use
+DTM011,D003,SV001,T001,1,Yes,No,Pain and fever relief
+DTM012,D003,SV001,T002,2,Yes,No,Hydration
+DTM013,D003,SV003,T014,1,Yes,Yes,SV003 complications
+DTM014,D004,SV001,T001,1,Yes,No,Symptomatic management
+DTM015,D004,SV001,T006,2,No,No,When clinically indicated
+DTM016,D004,SV003,T010,2,No,Yes,Respiratory support
+DTM017,D004,SV003,T014,1,Yes,Yes,Inpatient care
+DTM018,D005,SV001,T001,1,Yes,No,Symptomatic care
+DTM019,D005,SV002,T010,1,Yes,Yes,Oxygen support
+DTM020,D005,SV003,T011,2,Yes,Yes,SV003 disease management
+DTM021,D005,SV003,T014,1,Yes,Yes,Inpatient care
+DTM022,D005,SV001,T015,3,Yes,Yes,Infection control
+DTM023,D006,SV001,T007,1,Yes,No,Standard TB regimen
+DTM024,D006,SV003,T014,1,Yes,Yes,Advanced disease
+DTM025,D006,SV001,T015,2,Yes,Yes,Airborne precautions
+DTM026,D007,SV001,T009,1,Yes,No,Oral antibiotic
+DTM027,D007,SV003,T008,1,Yes,Yes,IV antibiotic
+DTM028,D007,SV003,T014,2,Yes,Yes,Inpatient management
+DTM029,D008,SV001,T002,1,Yes,No,Oral rehydration
+DTM030,D008,SV001,T013,2,Yes,No,Supportive therapy
+DTM031,D008,SV002,T003,1,Yes,Yes,SV002 dehydration
+DTM032,D008,SV003,T014,1,Yes,Yes,SV003 dehydration

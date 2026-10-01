@@ -1,0 +1,64 @@
+mapping_id,disease_id,lab_id,frequency,abnormal_probability,severity_effect
+DLM001,D001,L002,Common,0.30,Medium
+DLM002,D001,L003,Very Common,0.65,High
+DLM003,D001,L004,Common,0.35,Medium
+DLM004,D001,L006,Occasional,0.25,Medium
+DLM005,D001,L007,Occasional,0.25,Medium
+DLM006,D001,L009,Occasional,0.20,Medium
+DLM007,D001,L016,Very Common,0.85,High
+DLM008,D001,L017,Common,0.70,High
+
+DLM009,D002,L001,Common,0.30,Medium
+DLM010,D002,L002,Common,0.35,Medium
+DLM011,D002,L003,Common,0.25,Medium
+DLM012,D002,L004,Common,0.35,Medium
+DLM013,D002,L005,Occasional,0.25,Medium
+DLM014,D002,L006,Occasional,0.25,Medium
+DLM015,D002,L007,Occasional,0.25,Medium
+DLM016,D002,L015,Very Common,0.90,High
+
+DLM017,D003,L002,Common,0.30,Medium
+DLM018,D003,L003,Common,0.20,Medium
+DLM019,D003,L004,Very Common,0.70,High
+DLM020,D003,L006,Occasional,0.25,Medium
+DLM021,D003,L007,Occasional,0.25,Medium
+
+DLM022,D004,L001,Common,0.25,Medium
+DLM023,D004,L002,Common,0.40,Medium
+DLM024,D004,L004,Common,0.55,High
+DLM025,D004,L014,Common,0.15,High
+DLM026,D004,L020,Very Common,0.90,High
+
+DLM027,D005,L001,Common,0.20,Medium
+DLM028,D005,L002,Common,0.35,Medium
+DLM029,D005,L004,Very Common,0.65,High
+DLM030,D005,L005,Occasional,0.20,Medium
+DLM031,D005,L006,Occasional,0.25,Medium
+DLM032,D005,L007,Occasional,0.25,Medium
+DLM033,D005,L009,Occasional,0.25,Medium
+DLM034,D005,L014,Common,0.25,High
+DLM035,D005,L019,Very Common,0.90,High
+
+DLM036,D006,L001,Very Common,0.45,High
+DLM037,D006,L002,Very Common,0.50,High
+DLM038,D006,L003,Common,0.25,Medium
+DLM039,D006,L004,Very Common,0.75,High
+DLM040,D006,L005,Occasional,0.30,High
+DLM041,D006,L006,Common,0.30,Medium
+DLM042,D006,L007,Common,0.30,Medium
+DLM043,D006,L013,Very Common,0.75,High
+
+DLM044,D007,L001,Common,0.35,Medium
+DLM045,D007,L002,Common,0.45,Medium
+DLM046,D007,L004,Common,0.50,High
+DLM047,D007,L006,Occasional,0.25,Medium
+DLM048,D007,L007,Occasional,0.25,Medium
+DLM049,D007,L011,Occasional,0.30,Medium
+DLM050,D007,L018,Common,0.80,High
+
+DLM051,D008,L001,Common,0.25,Medium
+DLM052,D008,L002,Common,0.30,Medium
+DLM053,D008,L004,Common,0.40,Medium
+DLM054,D008,L005,Common,0.35,High
+DLM055,D008,L009,Common,0.45,High
+DLM056,D008,L010,Common,0.35,High

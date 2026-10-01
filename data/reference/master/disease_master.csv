@@ -1,0 +1,9 @@
+﻿disease_id,icd10_code,disease_name,disease_category,pathogen_type,communicable,transmission_mode,outbreak_potential,seasonality_india,incubation_min_days,incubation_max_days,hospitalization_possible,isolation_required,recovery_min_days,recovery_max_days,high_risk_groups,priority_level,description
+D001,A90,Dengue,Vector-borne,Virus,Yes,Mosquito (Aedes),High,Monsoon / Post-Monsoon,4,10,Yes,No,5,10,"Children, Elderly, Pregnant Women",High,"Mosquito-borne viral fever causing high fever, body pain and rash."
+D002,B50-B54,Malaria,Vector-borne,Parasite,Yes,Mosquito (Anopheles),High,Monsoon,7,30,Yes,No,7,14,"Children, Pregnant Women",High,Mosquito-borne parasitic disease characterized by fever with chills.
+D003,A92.0,Chikungunya,Vector-borne,Virus,Yes,Mosquito (Aedes),Medium,Monsoon,2,7,Sometimes,No,7,14,"Elderly, Immunocompromised",Medium,Viral disease characterized by fever and severe joint pain.
+D004,J10-J11,Influenza,Respiratory,Virus,Yes,Respiratory droplets,High,Winter,1,4,Sometimes,Yes,5,7,"Children, Elderly",High,Acute seasonal respiratory viral infection.
+D005,U07.1,COVID-19,Respiratory,Virus,Yes,Respiratory droplets / Aerosols,High,Year-round,2,14,Yes,Yes,7,14,"Elderly, Patients with Comorbidities",High,Acute respiratory viral disease with variable severity.
+D006,A15-A19,Tuberculosis,Respiratory,Bacteria,Yes,Airborne,Medium,Year-round,14,180,Yes,Yes,180,270,"Immunocompromised, Malnourished",High,Chronic bacterial infection primarily affecting the lungs.
+D007,A01.0,Typhoid Fever,Food & Water-borne,Bacteria,Yes,Contaminated food or water,Medium,Summer / Monsoon,6,30,Sometimes,No,7,14,"Children, Elderly",Medium,Systemic bacterial infection causing prolonged fever.
+D008,A09,Acute Gastroenteritis,Food & Water-borne,Mixed,Yes,Contaminated food or water,High,Summer / Monsoon,1,3,Sometimes,No,3,7,"Children, Elderly",Medium,Acute gastrointestinal infection causing diarrhoea and vomiting.

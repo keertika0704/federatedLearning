@@ -1,0 +1,4 @@
+﻿severity_id,severity_name,color_code,hospitalization_required,referral_required,icu_possible,description
+SV001,Mild,Green,No,No,No,"Stable patient with mild symptoms, usually managed on an outpatient basis."
+SV002,Moderate,Yellow,Sometimes,Sometimes,No,Patient requires closer monitoring and may require hospital admission depending on clinical condition.
+SV003,Severe,Red,Yes,Yes,Yes,Patient has severe illness or complications requiring hospital admission and possible intensive care.

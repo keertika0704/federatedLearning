@@ -1,0 +1,16 @@
+﻿treatment_id,treatment_name,treatment_category,treatment_type,route,inpatient_required,description
+T001,Paracetamol,Medication,Antipyretic,Oral,No,Used for fever and pain relief.
+T002,Oral Rehydration Solution (ORS),Supportive Care,Rehydration,Oral,No,Prevents and treats dehydration.
+T003,Intravenous Fluids,Supportive Care,Fluid Therapy,Intravenous,Yes,Used when oral hydration is insufficient.
+T004,Artemisinin-based Combination Therapy (ACT),Medication,Antimalarial,Oral,No,First-line treatment for uncomplicated malaria.
+T005,Primaquine,Medication,Antimalarial,Oral,No,Used where indicated to prevent malaria relapse (species-dependent).
+T006,Oseltamivir,Medication,Antiviral,Oral,No,Antiviral used for influenza.
+T007,Anti-Tubercular Therapy (ATT),Medication,Antibiotic Regimen,Oral,No,Standard multidrug regimen for tuberculosis.
+T008,Ceftriaxone,Medication,Antibiotic,Intravenous,Yes,Antibiotic commonly used in severe typhoid.
+T009,Azithromycin,Medication,Antibiotic,Oral,No,Oral antibiotic option for typhoid where appropriate.
+T010,Oxygen Therapy,Supportive Care,Respiratory Support,Inhalation,Yes,Supports patients with low oxygen saturation.
+T011,Dexamethasone,Medication,Corticosteroid,Oral / Intravenous,Yes,Used in selected severe inflammatory conditions such as severe COVID-19.
+T012,Platelet Monitoring,Monitoring,Laboratory Monitoring,Monitoring,Yes,Monitoring of platelet count in dengue.
+T013,Zinc Supplementation,Supportive Care,Nutritional Therapy,Oral,No,Used as supportive care in acute diarrhoeal illness.
+T014,Hospital Admission,Hospital Care,Admission,NA,Yes,Inpatient observation and management.
+T015,Isolation,Infection Control,Isolation,NA,Yes,Prevents transmission of infectious diseases.

@@ -1,0 +1,16 @@
+﻿complication_id,complication_name,body_system,severity_id,description
+C001,Dengue Hemorrhagic Fever,Hematological,SV003,Severe form of dengue with plasma leakage and bleeding.
+C002,Dengue Shock Syndrome,Cardiovascular,SV003,Severe circulatory failure due to dengue infection.
+C003,Severe Dehydration,General,SV003,Significant fluid loss requiring urgent management.
+C004,Acute Respiratory Distress Syndrome ,Respiratory,SV003,Severe inflammatory lung injury causing respiratory failure.
+C005,Pneumonia,Respiratory,SV002,Infection causing inflammation of the lungs.
+C006,Respiratory Failure,Respiratory,SV003,Inability of the lungs to maintain adequate oxygenation.
+C007,Sepsis,General,SV003,Life-threatening systemic response to infection.
+C008,Septic Shock,Cardiovascular,SV003,Severe sepsis causing dangerously low blood pressure.
+C009,Acute Kidney Injury,Renal,SV003,Sudden decline in kidney function.
+C010,Severe Anaemia,Hematological,SV002,Significant reduction in haemoglobin levels.
+C011,Pleural Effusion,Respiratory,SV002,Fluid accumulation around the lungs.
+C012,Meningitis,Nervous System,SV003,Infection and inflammation of the meninges.
+C013,Encephalitis,Nervous System,SV003,Inflammation of brain tissue.
+C014,Persistent Arthritis,Musculoskeletal,SV002,Long-term joint inflammation after Chikungunya.
+C015,Multi-Organ Dysfunction Syndrome,Multi-System,SV003,Failure of multiple organ systems.

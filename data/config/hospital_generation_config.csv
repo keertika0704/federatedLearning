@@ -1,0 +1,11 @@
+﻿hospital_id,region,climate,urban_rural,catchment_population,expected_daily_patients,seasonal_variation_factor,outbreak_multiplier
+H001,North,Continental,Urban,5000000,140,1.1,2.5
+H002,North,Continental,Urban,3500000,120,1.05,2.2
+H003,South,Tropical,Urban,2500000,110,1.4,2.8
+H004,South,Coastal,Urban,1800000,100,1.45,3
+H005,North,Continental,Urban,4000000,130,1.05,2.3
+H006,East,Tropical,Mixed,1200000,80,1.35,2.7
+H007,West,Semi-arid,Urban,2200000,95,1,2
+H008,Central,Tropical,Mixed,1700000,90,1.25,2.4
+H009,South,Coastal,Rural,900000,60,1.5,3.2
+H010,North,Continental,Urban,4500000,135,1.05,2.3

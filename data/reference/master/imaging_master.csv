@@ -1,0 +1,8 @@
+imaging_id,imaging_name,modality,body_system,description
+I001,Chest X-Ray,X-Ray,Respiratory,Imaging of the chest for pulmonary abnormalities.
+I002,Abdominal Ultrasound,Ultrasound,Gastrointestinal,Imaging of abdominal organs and structures.
+I003,Liver Ultrasound,Ultrasound,Hepatic,Imaging of the liver for structural abnormalities.
+I004,Brain CT,CT,Neurological,Computed tomography imaging of the brain.
+I005,Chest CT,CT,Respiratory,Detailed cross-sectional imaging of the chest.
+I006,Abdominal CT,CT,Gastrointestinal,Detailed cross-sectional imaging of abdominal structures.
+I007,Joint X-Ray,X-Ray,Musculoskeletal,Imaging of joints for structural abnormalities.

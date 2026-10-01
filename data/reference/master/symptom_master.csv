@@ -1,0 +1,29 @@
+﻿symptom_id,symptom_name,clinical_name,body_system,symptom_type,measurable,description
+S001,Fever,Pyrexia,General,Constitutional,Yes,Elevated body temperature.
+S002,Headache,Headache,Nervous System,Pain,No,Pain in the head or neck region.
+S003,Fatigue,Fatigue,General,Constitutional,No,Persistent feeling of tiredness or weakness.
+S004,Chills,Chills,General,Constitutional,No,Sensation of cold with shivering.
+S005,Sweating,Diaphoresis,General,Constitutional,No,Excessive sweating.
+S006,Dry Cough,Dry Cough,Respiratory,Respiratory,No,Non-productive cough.
+S007,Persistent Cough,Chronic Cough,Respiratory,Respiratory,No,Cough lasting more than two weeks.
+S008,Sore Throat,Pharyngitis,Respiratory,Respiratory,No,Pain or irritation in the throat.
+S009,Runny Nose,Rhinorrhoea,Respiratory,Respiratory,No,Nasal discharge.
+S010,Breathlessness,Dyspnoea,Respiratory,Respiratory,No,Difficulty breathing.
+S011,Chest Pain,Chest Pain,Respiratory,Pain,No,Pain or discomfort in the chest.
+S012,Loss of Taste,Ageusia,Nervous System,Sensory,No,Reduced or absent sense of taste.
+S013,Loss of Smell,Anosmia,Nervous System,Sensory,No,Reduced or absent sense of smell.
+S014,Muscle Pain,Myalgia,Musculoskeletal,Pain,No,Generalized muscle pain.
+S015,Joint Pain,Arthralgia,Musculoskeletal,Pain,No,Pain affecting one or more joints.
+S016,Retro-orbital Pain,Retro-orbital Pain,Eye,Pain,No,Pain behind the eyes.
+S017,Rash,Skin Rash,Skin,Dermatological,No,Redness or eruptions on the skin.
+S018,Nausea,Nausea,Gastrointestinal,GI,No,Feeling of wanting to vomit.
+S019,Vomiting,Emesis,Gastrointestinal,GI,Yes,Forceful emptying of stomach contents.
+S020,Diarrhoea,Diarrhoea,Gastrointestinal,GI,Yes,Frequent loose or watery stools.
+S021,Abdominal Pain,Abdominal Pain,Gastrointestinal,Pain,No,Pain in the abdominal region.
+S022,Loss of Appetite,Anorexia,Gastrointestinal,GI,No,Reduced desire to eat.
+S023,Weight Loss,Unintentional Weight Loss,General,Constitutional,Yes,Significant unintended loss of body weight.
+S024,Night Sweats,Night Sweats,General,Constitutional,No,Excessive sweating during sleep.
+S025,Bleeding,Hemorrhage,Hematological,Bleeding,Yes,Abnormal bleeding from any site.
+S026,Anaemia,Anaemia,Hematological,Clinical Sign,Yes,Reduced haemoglobin levels.
+S027,Dehydration,Dehydration,General,Clinical Sign,Yes,Loss of body fluids.
+S028,High Fever,Hyperpyrexia,General,Constitutional,Yes,Very high body temperature (>39°C).

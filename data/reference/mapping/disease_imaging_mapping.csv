@@ -1,0 +1,13 @@
+mapping_id,disease_id,imaging_id,frequency,abnormal_probability,severity_effect
+IM001,D001,I001,Occasional,0.35,Moderate
+IM002,D001,I003,Rare,0.25,Moderate
+IM003,D002,I003,Occasional,0.30,Moderate
+IM004,D003,I007,Occasional,0.40,Moderate
+IM005,D004,I001,Occasional,0.30,Moderate
+IM006,D005,I001,Common,0.55,High
+IM007,D005,I005,Occasional,0.65,High
+IM008,D006,I001,Common,0.60,High
+IM009,D006,I005,Occasional,0.70,High
+IM010,D007,I002,Occasional,0.35,Moderate
+IM011,D008,I002,Common,0.50,Moderate
+IM012,D008,I006,Rare,0.45,Moderate
