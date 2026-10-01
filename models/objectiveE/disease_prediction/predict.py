@@ -11,7 +11,7 @@ import json
 import pandas as pd
 from xgboost import XGBClassifier
 
-from train import build_features  # same feature logic as training — never duplicate it
+from models.objectiveE.disease_prediction.train import build_features  # same feature logic as training — never duplicate it
 
 
 def main():
