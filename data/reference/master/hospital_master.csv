@@ -1,4 +1,4 @@
-﻿hospital_id,hospital_name,city,state,hospital_type,level,beds ,node_name
+﻿hospital_id,hospital_name,city,state,hospital_type,level,beds,node_name
 H001,AIIMS New Delhi,New Delhi,Delhi,Government,Tertiary Care,2500,Node_A
 H002,PGIMER Chandigarh,Chandigarh,Chandigarh,Government,Tertiary Care,1900,Node_B
 H003,JIPMER Puducherry,Puducherry,Puducherry,Government,Tertiary Care,2100,Node_C

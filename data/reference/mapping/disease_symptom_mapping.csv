@@ -1,16 +1,16 @@
 ﻿mapping_id,disease_id,symptom_id,frequency,mandatory,onset_stage
-DSM001,D001,S001 ,Very Common,Yes,Early
+DSM001,D001,S001,Very Common,Yes,Early
 DSM002,D001,S002,Common,No,Early
 DSM003,D001,S014,Very Common,Yes,Early
-DSM004,D001,S015 ,Common,No,Early
-DSM005,D001,S016 ,Common,No,Early
+DSM004,D001,S015,Common,No,Early
+DSM005,D001,S016,Common,No,Early
 DSM006,D001,S017,Common,No,Middle
-DSM007,D001,S018 ,Occasional,No,Middle
+DSM007,D001,S018,Occasional,No,Middle
 DSM008,D001,S019,Occasional,No,Middle
-DSM009,D001,S025 ,Rare,No,Late
-DSM010,D002,S001 ,Very Common,Yes,Early
-DSM011,D002,S004 ,Very Common,Yes,Early
-DSM012,D002,S005 ,Very Common,Yes,Early
+DSM009,D001,S025,Rare,No,Late
+DSM010,D002,S001,Very Common,Yes,Early
+DSM011,D002,S004,Very Common,Yes,Early
+DSM012,D002,S005,Very Common,Yes,Early
 DSM013,D002,S002,Common,No,Early
 DSM014,D002,S003,Common,No,Middle
 DSM015,D002,S018,Occasional,No,Middle
