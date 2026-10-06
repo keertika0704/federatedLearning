@@ -8,8 +8,9 @@ At prediction time every treatment mapped to the disease + severity is scored an
 (an "S-learner": treatment is a feature, and we ask the model about each candidate).
 
 Reads ONLY
-    train.csv, test.csv  (next to this file) - your split of patient_treatments.csv as written by
-    generate_treatments.py: patient features + treatment details + outcome in every row.
+    train.csv, test.csv  - your split of encounters.csv (or patient_treatments.csv): patient features +
+    treatment details + outcome in every row. Only the whitelisted columns below are used, so the wider
+    encounters table (hospital, labs, admission/ICU/death, outbreak labels...) cannot leak in.
     The candidate treatments per disease/severity are taken from these rows too.
 
 Writes (model/)
@@ -17,7 +18,8 @@ Writes (model/)
 
 Run
     pip install pandas numpy xgboost scikit-learn
-    python train.py
+    python models/objectiveE/treatment_prediction/train.py --train data/generated/generated_data/train.csv \
+        --test data/generated/generated_data/test.csv
 """
 
 import argparse
@@ -57,6 +59,17 @@ RECOVERY_PARAMS = dict(n_estimators=1000, learning_rate=0.05, max_depth=5, min_c
                        random_state=42)
 
 
+# Whitelist: only these columns are read. Everything else in encounters.csv is either a consequence of
+# the outcome (admitted, icu, died, length_of_stay_days, has_complication...), not available at
+# recommendation time (labs, imaging, hospital, dates) or a label for another objective.
+PATIENT_FEATURES = (["age", "gender", "temperature", "heart_rate", "respiratory_rate", "spo2",
+                     "systolic_bp", "diastolic_bp"] + [f"S{i:03d}" for i in range(1, 29)])
+CONTEXT_FEATURES = ["disease_id", "severity_id"]
+TREATMENT_FEATURES = ["treatment_id", "treatment_category", "treatment_type", "route",
+                      "inpatient_required", "priority", "first_line"]
+KEEP = (["patient_token", "treatment_name"] + CONTEXT_FEATURES + PATIENT_FEATURES + TREATMENT_FEATURES
+        + LABELS + ["_oracle_success_prob"])   # patient_token / treatment_name / oracle: not features (see DROP)
+
 TX_COLS = ["treatment_id", "treatment_name", "treatment_category", "treatment_type", "route",
            "inpatient_required"]
 REQUIRED = ["patient_token", "disease_id", "severity_id", "treatment_id", "priority", "first_line",
@@ -72,7 +85,7 @@ def load_split(path):
         raise SystemExit(f"{path} is missing columns {missing}.\n"
                          f"Regenerate patient_treatments.csv with the latest generate_treatments.py "
                          f"(it now includes patient features and treatment details), then re-split it.")
-    return df
+    return df[[c for c in KEEP if c in df.columns]]
 
 
 def reference_from_data(df):

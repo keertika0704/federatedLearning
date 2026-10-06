@@ -20,11 +20,11 @@ from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
 
 TARGET = "disease_id"
-# Columns that must never be features:
-#   patient_token -> identifier, no predictive meaning (and a privacy risk)
-#   severity_id   -> usually decided together with / after the diagnosis, so it
-#                    leaks the answer and won't exist when you predict a new patient
-DROP_ALWAYS = ["patient_token", "severity_id"]
+# Whitelist of features, so the wider encounters.csv (severity, treatment, outcomes, hospital,
+# labs, outbreak/atypical labels...) can never leak into the model. These are exactly the inputs
+# the API / frontend send at triage time.
+FEATURES = (["age", "gender", "temperature", "heart_rate", "respiratory_rate", "spo2",
+             "systolic_bp", "diastolic_bp"] + [f"S{i:03d}" for i in range(1, 29)])
 
 
 # ---------- Step 1: load + clean ----------
@@ -32,8 +32,11 @@ def load(path: str, use_hospital: bool) -> pd.DataFrame:
     df = pd.read_csv(path)
     print(f"[load] {df.shape[0]} rows, {df.shape[1]} cols")
 
-    drop = DROP_ALWAYS + ([] if use_hospital else ["hospital_id"])
-    df = df.drop(columns=[c for c in drop if c in df.columns])
+    keep = FEATURES + (["hospital_id"] if use_hospital else []) + [TARGET]
+    missing = [c for c in keep if c not in df.columns]
+    if missing:
+        raise ValueError(f"{path} is missing required columns: {missing}")
+    df = df[keep]
 
     df = df.dropna(subset=[TARGET])
     print(f"[load] missing values per column (top 5):\n{df.isna().sum().sort_values(ascending=False).head()}")

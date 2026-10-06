@@ -12,7 +12,8 @@ Use from code:
     rec.recommend(patient, "D001", "SV002", top_k=3)   # list of dicts, best first
 
 Use from the terminal:
-    python predict.py --csv test.csv              # score every row -> test_predictions.csv + metrics
+    python predict.py                             # score the default test data (data/generated/generated_data/test.csv)
+    python predict.py --csv test.csv              # score every row of any split -> test_predictions.csv + metrics
     python predict.py --disease D001 --severity SV002 --patient '{"age": 67, "gender": "M", "spo2": 86, "S001": 1}'
     python predict.py --disease D001 --severity SV002 --patient patient.json
 
@@ -28,7 +29,10 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 
-MODEL_DIR = Path(__file__).resolve().parent / "model"
+HERE = Path(__file__).resolve().parent
+MODEL_DIR = HERE / "model"
+DEFAULT_TEST = next(p for p in HERE.parents if (p / "models" / "objectiveE").is_dir()) \
+    / "data" / "generated" / "generated_data" / "test.csv"
 
 
 def is_symptom(col):
@@ -184,8 +188,8 @@ def predict_csv(rec, path, out_path):
 def main():
     ap = argparse.ArgumentParser(description="Single patient: --disease --severity --patient.  "
                                              "Whole file: --csv test.csv")
-    ap.add_argument("--csv", help="score every row of this file (e.g. test.csv)")
-    ap.add_argument("--out", default=str(Path(__file__).resolve().parent / "test_predictions.csv"))
+    ap.add_argument("--csv", help=f"score every row of this file (default when no patient is given: {DEFAULT_TEST})")
+    ap.add_argument("--out", default=str(HERE / "test_predictions.csv"))
     ap.add_argument("--disease")
     ap.add_argument("--severity")
     ap.add_argument("--patient", help="JSON string or path to a .json file")
@@ -193,11 +197,10 @@ def main():
     args = ap.parse_args()
 
     rec = TreatmentRecommender()
-    if args.csv:
-        predict_csv(rec, args.csv, args.out)
+    single = args.disease and args.severity and args.patient
+    if args.csv or not single:       # no patient given -> score the test data
+        predict_csv(rec, args.csv or DEFAULT_TEST, args.out)
         return
-    if not (args.disease and args.severity and args.patient):
-        ap.error("give --csv FILE, or all of --disease, --severity and --patient")
     p = args.patient
     patient = json.loads(Path(p).read_text()) if Path(p).is_file() else json.loads(p)
     print(json.dumps(rec.recommend(patient, args.disease, args.severity, args.top_k), indent=2))

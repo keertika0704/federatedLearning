@@ -2,22 +2,30 @@
 Predict diseases for new patients with the trained model.
 
 Usage:
-    python predict.py --data new_patients.csv            # writes predictions.csv
+    python models/objectiveE/disease_prediction/predict.py --data new_patients.csv   # from the project root; writes predictions.csv
     python predict.py --data new_patients.csv --top 3    # top-3 diseases with probabilities
 """
 import argparse
 import json
+import sys
+from pathlib import Path
 
 import pandas as pd
 from xgboost import XGBClassifier
 
-from models.objectiveE.disease_prediction.train import build_features  # same feature logic as training — never duplicate it
+# Make `models.*` importable when run as a plain script from any directory (same approach as api.py)
+HERE = Path(__file__).resolve().parent
+PROJECT_ROOT = next(p for p in HERE.parents if (p / "models" / "objectiveE").is_dir())
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from models.objectiveE.disease_prediction.train import build_features  # noqa: E402  same feature logic as training — never duplicate it
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--data", required=True)
-    p.add_argument("--model-dir", default="model")
+    p.add_argument("--model-dir", default=str(HERE / "model"))
     p.add_argument("--top", type=int, default=1)
     p.add_argument("--out", default="predictions.csv")
     args = p.parse_args()

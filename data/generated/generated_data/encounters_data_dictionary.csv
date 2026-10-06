@@ -1,0 +1,109 @@
+column,group,role,description
+encounter_id,identity,id,row / patient identifier
+patient_token,identity,id,row / patient identifier
+encounter_date,time,feature,encounter date and calendar parts (objective B: use for time series / splits)
+year,time,feature,encounter date and calendar parts (objective B: use for time series / splits)
+month,time,feature,encounter date and calendar parts (objective B: use for time series / splits)
+day_of_week,time,feature,encounter date and calendar parts (objective B: use for time series / splits)
+week_of_year,time,feature,encounter date and calendar parts (objective B: use for time series / splits)
+hospital_id,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+hospital_name,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+city,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+state,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+hospital_type,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+level,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+beds,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+node_name,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+region,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+climate,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+urban_rural,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+catchment_population,hospital,feature,hospital attributes; hospital_id / node_name = federated client
+daily_encounters_at_hospital,hospital,feature,encounters at this hospital on this day (load signal for objective B)
+age,demographics,feature,age
+gender,demographics,feature,gender
+temperature,vitals,feature,temperature
+heart_rate,vitals,feature,heart_rate
+respiratory_rate,vitals,feature,respiratory_rate
+spo2,vitals,feature,spo2
+systolic_bp,vitals,feature,systolic_bp
+diastolic_bp,vitals,feature,diastolic_bp
+days_since_onset,history,feature,days between symptom onset and the encounter
+S001,symptoms,feature,1 = Fever present
+S002,symptoms,feature,1 = Headache present
+S003,symptoms,feature,1 = Fatigue present
+S004,symptoms,feature,1 = Chills present
+S005,symptoms,feature,1 = Sweating present
+S006,symptoms,feature,1 = Dry Cough present
+S007,symptoms,feature,1 = Persistent Cough present
+S008,symptoms,feature,1 = Sore Throat present
+S009,symptoms,feature,1 = Runny Nose present
+S010,symptoms,feature,1 = Breathlessness present
+S011,symptoms,feature,1 = Chest Pain present
+S012,symptoms,feature,1 = Loss of Taste present
+S013,symptoms,feature,1 = Loss of Smell present
+S014,symptoms,feature,1 = Muscle Pain present
+S015,symptoms,feature,1 = Joint Pain present
+S016,symptoms,feature,1 = Retro-orbital Pain present
+S017,symptoms,feature,1 = Rash present
+S018,symptoms,feature,1 = Nausea present
+S019,symptoms,feature,1 = Vomiting present
+S020,symptoms,feature,1 = Diarrhoea present
+S021,symptoms,feature,1 = Abdominal Pain present
+S022,symptoms,feature,1 = Loss of Appetite present
+S023,symptoms,feature,1 = Weight Loss present
+S024,symptoms,feature,1 = Night Sweats present
+S025,symptoms,feature,1 = Bleeding present
+S026,symptoms,feature,1 = Anaemia present
+S027,symptoms,feature,1 = Dehydration present
+S028,symptoms,feature,1 = High Fever present
+lab_alt,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_ast,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_covid_pcr,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_creat,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_crp,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_esr,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_flu_pcr,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_hgb,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_igm_den,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_k,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_mp,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_na,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_ns1,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_plt,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_tbil,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_typh,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+lab_wbc,labs,feature,"result, or empty if not ordered (binary tests: 1 = positive)"
+img_abdominal_ct,imaging,feature,"1 = abnormal, 0 = normal, empty if not performed"
+img_abdominal_ultrasound,imaging,feature,"1 = abnormal, 0 = normal, empty if not performed"
+img_chest_ct,imaging,feature,"1 = abnormal, 0 = normal, empty if not performed"
+img_chest_x_ray,imaging,feature,"1 = abnormal, 0 = normal, empty if not performed"
+img_joint_x_ray,imaging,feature,"1 = abnormal, 0 = normal, empty if not performed"
+img_liver_ultrasound,imaging,feature,"1 = abnormal, 0 = normal, empty if not performed"
+disease_id,diagnosis,target,target of disease detection
+disease_name,diagnosis,leakage_for_disease_model,label description
+disease_category,diagnosis,leakage_for_disease_model,label description
+communicable,diagnosis,leakage_for_disease_model,label description
+severity_id,severity,post_diagnosis,"severity (feature for treatment model, not for disease detection)"
+severity_name,severity,post_diagnosis,"severity (feature for treatment model, not for disease detection)"
+has_complication,complications,post_diagnosis,complications for this encounter
+n_complications,complications,post_diagnosis,complications for this encounter
+complication_ids,complications,post_diagnosis,complications for this encounter
+treatment_id,treatment,target_treatment,treatment given (target of treatment recommender)
+treatment_name,treatment,target_treatment,treatment given (target of treatment recommender)
+treatment_category,treatment,target_treatment,treatment given (target of treatment recommender)
+treatment_type,treatment,target_treatment,treatment given (target of treatment recommender)
+route,treatment,target_treatment,treatment given (target of treatment recommender)
+inpatient_required,treatment,target_treatment,treatment given (target of treatment recommender)
+priority,treatment,target_treatment,treatment given (target of treatment recommender)
+first_line,treatment,target_treatment,treatment given (target of treatment recommender)
+success,outcome,target_treatment,treatment outcome targets
+recovery_days,outcome,target_treatment,treatment outcome targets
+admitted,outcome,post_treatment,hospital course / outcome
+icu,outcome,post_treatment,hospital course / outcome
+length_of_stay_days,outcome,post_treatment,hospital course / outcome
+died,outcome,post_treatment,hospital course / outcome
+is_atypical,objective_A,target_A,atypical presentation label (none / missing_hallmark / extra_symptoms / vitals_discordant)
+atypical_type,objective_A,target_A,atypical presentation label (none / missing_hallmark / extra_symptoms / vitals_discordant)
+outbreak_active,objective_B,target_B,outbreak episode label for this hospital + disease + day
+outbreak_id,objective_B,target_B,outbreak episode label for this hospital + disease + day
+_oracle_success_prob,oracle,evaluation_only,true simulated success probability; never a feature

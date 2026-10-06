@@ -1,18 +1,11 @@
 {
   "model": "XGBoost S-learner: P(success) classifier + recovery-days regressor",
-  "trained_at": "2026-10-01T16:33:38+00:00",
+  "trained_at": "2026-10-06T07:36:26+00:00",
   "xgboost_version": "3.4.1",
   "sklearn_version": "1.9.1",
   "feature_cols": [
     "disease_id",
     "severity_id",
-    "treatment_id",
-    "treatment_category",
-    "treatment_type",
-    "route",
-    "inpatient_required",
-    "priority",
-    "first_line",
     "age",
     "gender",
     "temperature",
@@ -48,7 +41,14 @@
     "S025",
     "S026",
     "S027",
-    "S028"
+    "S028",
+    "treatment_id",
+    "treatment_category",
+    "treatment_type",
+    "route",
+    "inpatient_required",
+    "priority",
+    "first_line"
   ],
   "categories": {
     "gender": [
@@ -679,6 +679,30 @@
       "inpatient_required": 1
     },
     {
+      "treatment_id": "T010",
+      "treatment_name": "Oxygen Therapy",
+      "treatment_category": "Supportive Care",
+      "treatment_type": "Respiratory Support",
+      "route": "Inhalation",
+      "inpatient_required": 1
+    },
+    {
+      "treatment_id": "T007",
+      "treatment_name": "Anti-Tubercular Therapy (ATT)",
+      "treatment_category": "Medication",
+      "treatment_type": "Antibiotic Regimen",
+      "route": "Oral",
+      "inpatient_required": 0
+    },
+    {
+      "treatment_id": "T014",
+      "treatment_name": "Hospital Admission",
+      "treatment_category": "Hospital Care",
+      "treatment_type": "Admission",
+      "route": null,
+      "inpatient_required": 1
+    },
+    {
       "treatment_id": "T006",
       "treatment_name": "Oseltamivir",
       "treatment_category": "Medication",
@@ -687,12 +711,12 @@
       "inpatient_required": 0
     },
     {
-      "treatment_id": "T004",
-      "treatment_name": "Artemisinin-based Combination Therapy (ACT)",
-      "treatment_category": "Medication",
-      "treatment_type": "Antimalarial",
-      "route": "Oral",
-      "inpatient_required": 0
+      "treatment_id": "T015",
+      "treatment_name": "Isolation",
+      "treatment_category": "Infection Control",
+      "treatment_type": "Isolation",
+      "route": null,
+      "inpatient_required": 1
     },
     {
       "treatment_id": "T002",
@@ -711,42 +735,10 @@
       "inpatient_required": 0
     },
     {
-      "treatment_id": "T015",
-      "treatment_name": "Isolation",
-      "treatment_category": "Infection Control",
-      "treatment_type": "Isolation",
-      "route": null,
-      "inpatient_required": 1
-    },
-    {
-      "treatment_id": "T011",
-      "treatment_name": "Dexamethasone",
+      "treatment_id": "T004",
+      "treatment_name": "Artemisinin-based Combination Therapy (ACT)",
       "treatment_category": "Medication",
-      "treatment_type": "Corticosteroid",
-      "route": "Oral / Intravenous",
-      "inpatient_required": 1
-    },
-    {
-      "treatment_id": "T010",
-      "treatment_name": "Oxygen Therapy",
-      "treatment_category": "Supportive Care",
-      "treatment_type": "Respiratory Support",
-      "route": "Inhalation",
-      "inpatient_required": 1
-    },
-    {
-      "treatment_id": "T014",
-      "treatment_name": "Hospital Admission",
-      "treatment_category": "Hospital Care",
-      "treatment_type": "Admission",
-      "route": null,
-      "inpatient_required": 1
-    },
-    {
-      "treatment_id": "T007",
-      "treatment_name": "Anti-Tubercular Therapy (ATT)",
-      "treatment_category": "Medication",
-      "treatment_type": "Antibiotic Regimen",
+      "treatment_type": "Antimalarial",
       "route": "Oral",
       "inpatient_required": 0
     },
@@ -759,11 +751,19 @@
       "inpatient_required": 0
     },
     {
-      "treatment_id": "T012",
-      "treatment_name": "Platelet Monitoring",
-      "treatment_category": "Monitoring",
-      "treatment_type": "Laboratory Monitoring",
-      "route": "Monitoring",
+      "treatment_id": "T011",
+      "treatment_name": "Dexamethasone",
+      "treatment_category": "Medication",
+      "treatment_type": "Corticosteroid",
+      "route": "Oral / Intravenous",
+      "inpatient_required": 1
+    },
+    {
+      "treatment_id": "T008",
+      "treatment_name": "Ceftriaxone",
+      "treatment_category": "Medication",
+      "treatment_type": "Antibiotic",
+      "route": "Intravenous",
       "inpatient_required": 1
     },
     {
@@ -775,11 +775,11 @@
       "inpatient_required": 0
     },
     {
-      "treatment_id": "T008",
-      "treatment_name": "Ceftriaxone",
-      "treatment_category": "Medication",
-      "treatment_type": "Antibiotic",
-      "route": "Intravenous",
+      "treatment_id": "T012",
+      "treatment_name": "Platelet Monitoring",
+      "treatment_category": "Monitoring",
+      "treatment_type": "Laboratory Monitoring",
+      "route": "Monitoring",
       "inpatient_required": 1
     }
   ],
@@ -816,57 +816,57 @@
     }
   },
   "best_iteration": {
-    "success": 61,
-    "recovery": 127
+    "success": 96,
+    "recovery": 136
   },
   "rows": {
-    "train": 16000,
-    "test": 4000
+    "train": 56620,
+    "test": 14155
   },
   "metrics": {
     "success": {
       "constant": {
         "auc": 0.5,
-        "brier": 0.1887,
-        "log_loss": 0.5651
+        "brier": 0.1915,
+        "log_loss": 0.5712
       },
       "treatment_only": {
-        "auc": 0.5765,
-        "brier": 0.1842,
-        "log_loss": 0.5542
+        "auc": 0.5775,
+        "brier": 0.1869,
+        "log_loss": 0.5601
       },
       "logistic_regression": {
-        "auc": 0.6089,
-        "brier": 0.1802,
-        "log_loss": 0.5449
+        "auc": 0.6073,
+        "brier": 0.1838,
+        "log_loss": 0.5528
       },
       "xgboost": {
-        "auc": 0.6202,
-        "brier": 0.1784,
-        "log_loss": 0.5404
+        "auc": 0.6142,
+        "brier": 0.1827,
+        "log_loss": 0.55
       },
       "ceiling_true_probs": {
-        "auc": 0.6321,
-        "brier": 0.1774,
-        "log_loss": 0.5378
+        "auc": 0.6208,
+        "brier": 0.182,
+        "log_loss": 0.5483
       }
     },
-    "oracle_correlation": 0.9226,
+    "oracle_correlation": 0.9696,
     "recovery_mae": {
-      "xgboost": 1.526,
-      "naive_median": 2.667
+      "xgboost": 1.514,
+      "naive_median": 2.615
     },
     "policy": {
-      "model_guideline_agreement": 0.9137,
+      "model_guideline_agreement": 0.9175,
       "guide_pick": {
-        "followed": 2916,
-        "success_when_followed": 0.7671,
-        "success_otherwise": 0.6946
+        "followed": 10330,
+        "success_when_followed": 0.7631,
+        "success_otherwise": 0.6844
       },
       "model_pick": {
-        "followed": 2858,
-        "success_when_followed": 0.7768,
-        "success_otherwise": 0.6743
+        "followed": 10240,
+        "success_when_followed": 0.77,
+        "success_otherwise": 0.6682
       }
     }
   }
