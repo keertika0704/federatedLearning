@@ -1,13 +1,13 @@
 """
 HTTP API for the treatment recommender.
 
-Run:
-    uvicorn backend.treatment_prediction_api:app --reload --port 8002
-    (run from the project root)
+This module only defines a router; backend/main.py mounts it. Run the whole backend from the project root:
+    uvicorn backend.main:app --reload --port 8000
 
 Endpoints:
     GET  /api/treatment/health      -> model loaded? version, metrics
     POST /api/treatment/recommend   -> ranked treatments for one patient
+    POST /recommend-treatment       -> same, used by the frontend (API key / UI session required)
 
 Example request body:
     {
@@ -23,10 +23,9 @@ and listed back in "missing_fields".
 
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Literal, Optional
 
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 PROJECT_ROOT = next(
@@ -36,10 +35,18 @@ PROJECT_ROOT = next(
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from backend.security import require_api_key
 from models.objectiveE.treatment_prediction.predict import TreatmentRecommender
 
-app = FastAPI(title="Treatment Recommender", version="1.0")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+router = APIRouter()
+
+
+class TreatmentPlanRequest(BaseModel):
+    disease_id: str = Field(..., examples=["D001"])
+    severity_id: Literal["SV001", "SV002", "SV003"]
+    patient: Dict[str, Any]
+    top_k: int = Field(3, ge=1, le=10)
+
 
 recommender = TreatmentRecommender()   # loads model/ once at startup
 
@@ -51,7 +58,7 @@ class RecommendRequest(BaseModel):
     top_k: Optional[int] = Field(None, ge=1)
 
 
-@app.get("/api/treatment/health")
+@router.get("/api/treatment/health")
 def health():
     m = recommender.meta
     return {"status": "ok", "model": m["model"], "trained_at": m["trained_at"],
@@ -59,9 +66,23 @@ def health():
             "metrics": m.get("metrics")}
 
 
-@app.post("/api/treatment/recommend")
+@router.post("/api/treatment/recommend")
 def recommend(req: RecommendRequest):
     known = set(recommender.cand_dis.disease_id)
     if req.disease_id not in known:
         raise HTTPException(404, f"Unknown disease_id {req.disease_id}. Known: {sorted(known)}")
     return recommender.recommend(req.patient, req.disease_id, req.severity_id, req.top_k)
+
+
+@router.post("/recommend-treatment", dependencies=[Depends(require_api_key)])
+def recommend_treatment(req: TreatmentPlanRequest):
+    patient = dict(req.patient)
+    patient["gender"] = {"M": "Male", "F": "Female"}.get(patient.get("gender"), patient.get("gender"))
+    return recommend_for_patient(patient, req.disease_id, req.severity_id, req.top_k)
+
+
+def recommend_for_patient(patient: Dict[str, Any], disease_id: str, severity_id: str, top_k: Optional[int] = None):
+    known = set(recommender.cand_dis.disease_id)
+    if disease_id not in known:
+        raise HTTPException(404, f"Unknown disease_id {disease_id}. Known: {sorted(known)}")
+    return recommender.recommend(patient, disease_id, severity_id, top_k)

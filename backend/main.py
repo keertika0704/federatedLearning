@@ -1,4 +1,4 @@
-"""Combined API application for disease prediction and treatment recommendation."""
+"""Combined API application for disease prediction, atypical-presentation flagging and treatment recommendation."""
 
 import json
 import os
@@ -9,13 +9,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from backend.disease_prediction_api import router as disease_router
+from models.objectiveE.disease_prediction.api import router as disease_router
 from backend.security import API_KEY, UI_SESSION_TOKEN
-from backend.treatment_prediction_api import router as treatment_router
+from models.objectiveE.treatment_prediction.api import router as treatment_router
+from models.objectiveA.api import router as atypical_router
 
 app = FastAPI(title="Patient Disease and Treatment API", version="1.0.0", docs_url=None)
 app.include_router(disease_router)
 app.include_router(treatment_router)
+app.include_router(atypical_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.getenv(

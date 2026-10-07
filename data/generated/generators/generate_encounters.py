@@ -15,8 +15,8 @@ How it works
        in the same region a few days later.
     2. Volume and disease mix: per hospital per day, cases of each disease ~ Poisson(
        hospital daily volume * scale * disease prevalence * seasonality * climate factor * outbreak factor).
-    3. Each encounter reuses the logic of the two existing generators (generate_synthetic_patients.py and
-       generate_treatments.py): age/gender/vitals/symptoms, then treatment choice + outcome.
+    3. Each encounter uses the same logic as the earlier two-step generators (patients, then treatment/outcome),
+       now built in so this file runs on its own: age/gender/vitals/symptoms, then treatment choice + outcome.
     4. On top: onset days, lab results, imaging, complications, atypical presentations, admission/ICU/death.
 
 Reads  (data/config and data/reference)
@@ -39,19 +39,173 @@ Run
 """
 
 import argparse
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+# ---- paths ----
 SCRIPT_DIR = Path(__file__).resolve().parent      # data/generated/generators
-sys.path.insert(0, str(SCRIPT_DIR))
-import generate_synthetic_patients as gp          # noqa: E402  (symptom profiles, vitals, gender, loader)
-import generate_treatments as gt                  # noqa: E402  (risk factors, success model)
+DATA_ROOT = SCRIPT_DIR.parents[1]                 # data
+INPUT_DIRS = [DATA_ROOT / "config", DATA_ROOT / "reference"]
+OUTPUT_DIR = DATA_ROOT / "generated" / "generated_data"
 
-DATA_ROOT, OUTPUT_DIR = gp.DATA_ROOT, gp.OUTPUT_DIR
-load = gp.load
+# ---- patient / treatment simulation settings ----
+# ---- generation settings ----
+NOISE_SYMPTOM_P = 0.03   # chance of an unrelated symptom showing up (real-world noise)
+VITAL_WIDEN = 0.15       # vitals can fall 15% outside the configured range
+PREF_AGE_SHARE = 0.75    # share of patients inside the disease's preferred age range
+PREF_GENDER_SHARE = 0.75 # share of patients matching the disease's preferred gender
+MANDATORY_P = 0.97       # probability a "mandatory" symptom is present
+FREQ_P = {
+    "very common": 0.85, "common": 0.60, "frequent": 0.60, "occasional": 0.35,
+    "uncommon": 0.20, "rare": 0.10, "very rare": 0.05,
+}
+DEFAULT_FREQ_P = 0.30
+SEV_IDS = {"mild_percentage": "SV001", "moderate_percentage": "SV002", "severe_percentage": "SV003"}
+VITALS = ["temperature", "heart_rate", "respiratory_rate", "spo2", "systolic_bp", "diastolic_bp"]
+# ---- simulation settings ----
+EXPLORE = 0.25          # share of patients whose treatment is picked uniformly from the candidates
+BASE_DAYS = [4, 7, 12, 18, 25]   # typical recovery days by severity level (mild -> critical)
+
+
+def load(name):
+    """Find <name>.csv (or '<name> copy.csv') anywhere under data/config or data/reference."""
+    paths = sorted(p for d in INPUT_DIRS for p in d.rglob(f"{name}*.csv"))
+    if not paths:
+        raise FileNotFoundError(f"Missing {name}.csv under {[str(d) for d in INPUT_DIRS]}")
+    print(f"  loaded {paths[0].relative_to(DATA_ROOT)}")
+    df = pd.read_csv(paths[0])
+    df.columns = [c.strip() for c in df.columns]
+    return df
+
+
+# ---------------------------------------------------------------- patient helpers
+def build_symptom_profiles(dsm, sym_idx):
+    """disease_id -> list of (symptom column index, probability)."""
+    unknown = set(dsm["frequency"].astype(str).str.strip().str.lower()) - set(FREQ_P)
+    if unknown:
+        print(f"WARNING: unknown frequency labels, using {DEFAULT_FREQ_P} for: {unknown}")
+ 
+    profiles = {}
+    for disease, group in dsm.groupby("disease_id"):
+        prof = []
+        for sid, freq, mand in group[["symptom_id", "frequency", "mandatory"]].astype(str).itertuples(index=False):
+            if sid not in sym_idx:
+                print(f"WARNING: {sid} in mapping but not in symptom_master, skipping")
+                continue
+            if mand.strip().lower() == "yes":
+                p = MANDATORY_P
+            else:
+                p = FREQ_P.get(freq.strip().lower(), DEFAULT_FREQ_P)
+            prof.append((sym_idx[sid], p))
+        profiles[disease] = prof
+    return profiles
+
+
+def sample_vitals(rng, vit, disease, severity):
+    row = vit.get((disease, severity))
+    if row is None:  # fall back to any severity row for this disease
+        row = next(v for (d, _), v in vit.items() if d == disease)
+    out = {}
+    for v in VITALS:
+        lo, hi = getattr(row, f"{v}_min"), getattr(row, f"{v}_max")
+        pad = (hi - lo) * VITAL_WIDEN
+        x = rng.uniform(lo - pad, hi + pad)
+        out[v] = round(x, 1) if v == "temperature" else int(round(x))
+    out["spo2"] = min(out["spo2"], 100)
+    return out
+
+
+def sample_gender(rng, preferred):
+    pg = str(preferred).strip().lower()
+    if pg.startswith("m"):
+        return "Male" if rng.random() < PREF_GENDER_SHARE else "Female"
+    if pg.startswith("f"):
+        return "Female" if rng.random() < PREF_GENDER_SHARE else "Male"
+    return "Male" if rng.random() < 0.5 else "Female"
+
+
+# ---------------------------------------------------------------- treatment / outcome helpers
+def yes(v):
+    return str(v).strip().lower() in {"yes", "y", "true", "1"}
+
+
+def find_col(df, *keywords):
+    """First column whose lowercase name contains any keyword."""
+    for c in df.columns:
+        if any(k in c.lower() for k in keywords):
+            return c
+    return None
+
+
+def severity_levels(sev_master, ids_in_data):
+    """Map severity_id -> 0..1 (0 = mildest). Uses severity_name words, else ID order."""
+    order = {"mild": 0, "moderate": 1, "severe": 2, "critical": 3}
+    level = {}
+    if sev_master is not None and "severity_name" in sev_master:
+        for sid, name in zip(sev_master["severity_id"], sev_master["severity_name"].astype(str).str.lower()):
+            for word, lv in order.items():
+                if word in name:
+                    level[sid] = lv
+    missing = sorted(set(ids_in_data) - set(level))
+    if missing:                                   # fall back to sorted ID order
+        all_ids = sorted(set(ids_in_data) | set(level))
+        level = {sid: i for i, sid in enumerate(all_ids)}
+    top = max(level.values()) or 1
+    return {sid: lv / top for sid, lv in level.items()}, {sid: lv for sid, lv in level.items()}
+
+
+# ---------------------------------------------------------------- patient risk factors (each 0..1)
+def risk_factors(p):
+    temp_c = find_col(p, "temp")
+    hr_c = find_col(p, "heart", "pulse", "hr")
+    spo2_c = find_col(p, "spo2", "oxygen", "saturation")
+    sbp_c = find_col(p, "systolic", "sbp")
+    print("Vitals used ->", {"temp": temp_c, "heart_rate": hr_c, "spo2": spo2_c, "systolic": sbp_c})
+
+    z = pd.Series(0.0, index=p.index)
+    f = pd.DataFrame(index=p.index)
+    if temp_c:
+        t = p[temp_c].astype(float)
+        if t.median() > 50:                       # Fahrenheit -> Celsius
+            t = (t - 32) * 5 / 9
+        f["fever"] = ((t - 38.5) / 1.5).clip(0, 1)
+    else:
+        f["fever"] = z
+    f["tachy"] = ((p[hr_c] - 100) / 30).clip(0, 1) if hr_c else z
+    f["hypoxia"] = ((95 - p[spo2_c]) / 10).clip(0, 1) if spo2_c else z
+    f["hypotension"] = ((100 - p[sbp_c]) / 20).clip(0, 1) if sbp_c else z
+    age = p["age"].astype(float)
+    f["age_risk"] = ((age - 60) / 25).clip(0, 1) + ((5 - age) / 5).clip(0, 1)
+    return f
+
+
+# ---------------------------------------------------------------- outcome model (the "truth")
+def success_prob(row, rf, sev, tx):
+    """True P(success). Patient risk lowers it; a treatment that fits the patient raises it."""
+    base = 0.82 if yes(tx["first_line"]) else 0.68
+    base -= 0.03 * (max(int(tx["priority"]), 1) - 1)
+    z = np.log(base / (1 - base))
+
+    # patient risk
+    z -= 1.3 * sev + 0.7 * rf["age_risk"] + 0.9 * rf["hypoxia"] + 0.4 * rf["fever"] \
+         + 0.4 * rf["tachy"] + 0.5 * rf["hypotension"]
+
+    # treatment-patient fit
+    ttype = str(tx.get("treatment_type", "")).lower()
+    inpatient = yes(tx.get("inpatient_required", "No"))
+    if "respiratory" in ttype or "oxygen" in str(tx.get("treatment_name", "")).lower():
+        z += 2.0 * rf["hypoxia"] - 0.3 * (1 - rf["hypoxia"])     # great if hypoxic, mostly useless if not
+    if "fluid" in ttype or "rehydration" in ttype:
+        z += 1.0 * rf["tachy"] + 0.9 * rf["hypotension"]
+    if "antipyretic" in ttype:
+        z += 0.5 * rf["fever"]
+    z += (1.0 * sev) if inpatient else (-0.7 * sev)               # severe cases do better admitted
+    if inpatient and sev == 0:
+        z -= 0.2                                                  # over-treating mild cases: small penalty
+
+    return float(1 / (1 + np.exp(-z)))
 
 # ---- generation settings ----
 PEAK_BOOST = 2.0              # in-season case multiplier (scaled by hospital seasonal_variation_factor)
@@ -119,7 +273,7 @@ def build_lab_profiles(dlm, lab_master):
     """disease_id -> list of (lab_id, p_ordered, p_abnormal)."""
     prof = {}
     for r in dlm.itertuples(index=False):
-        p_order = gp.FREQ_P.get(str(r.frequency).strip().lower(), gp.DEFAULT_FREQ_P)
+        p_order = FREQ_P.get(str(r.frequency).strip().lower(), DEFAULT_FREQ_P)
         prof.setdefault(r.disease_id, []).append((r.lab_id, p_order, float(r.abnormal_probability)))
     return prof
 
@@ -149,7 +303,7 @@ def make_atypical(rng, symptoms, disease, mandatory, profile_idx, n_sym, vit, se
             symptoms[j] = 1
     else:  # vitals look like a different disease
         other = str(rng.choice([d for d in mandatory if d != disease]))
-        vitals = gp.sample_vitals(rng, vit, other, severity)
+        vitals = sample_vitals(rng, vit, other, severity)
     if symptoms.sum() == 0:
         symptoms[int(rng.choice(sorted(profile_idx[disease])))] = 1
     return symptoms, vitals, kind
@@ -170,7 +324,7 @@ def describe_columns(cols, symptom_names):
             g, role, d = "hospital", "feature", "encounters at this hospital on this day (load signal for objective B)"
         elif c in {"age", "gender"}:
             g, role, d = "demographics", "feature", c
-        elif c in gp.VITALS:
+        elif c in VITALS:
             g, role, d = "vitals", "feature", c
         elif c == "days_since_onset":
             g, role, d = "history", "feature", "days between symptom onset and the encounter"
@@ -212,7 +366,7 @@ def main():
     ap.add_argument("--start", default="2024-01-01")
     ap.add_argument("--days", type=int, default=730)
     ap.add_argument("--scale", type=float, default=0.05, help="fraction of expected_daily_patients to generate")
-    ap.add_argument("--explore", type=float, default=gt.EXPLORE)
+    ap.add_argument("--explore", type=float, default=EXPLORE)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out", default="encounters.csv")
     args = ap.parse_args()
@@ -232,7 +386,7 @@ def main():
     # ---- lookups
     symptoms = sym_m["symptom_id"].astype(str).tolist()
     sym_idx = {s: i for i, s in enumerate(symptoms)}
-    profiles = gp.build_symptom_profiles(dsm, sym_idx)
+    profiles = build_symptom_profiles(dsm, sym_idx)
     profile_idx = {d: {j for j, _ in p} for d, p in profiles.items()}
     mandatory = {d: [sym_idx[s] for s in g.loc[g["mandatory"].astype(str).str.lower() == "yes", "symptom_id"]
                      if s in sym_idx] for d, g in dsm.groupby("disease_id")}
@@ -249,15 +403,15 @@ def main():
     img_cols = {i: f"img_{snake(imgs.loc[i, 'imaging_name'])}" for i in imgs.index}
     img_profiles = {}
     for r in dim_.itertuples(index=False):
-        p = gp.FREQ_P.get(str(r.frequency).strip().lower(), gp.DEFAULT_FREQ_P)
+        p = FREQ_P.get(str(r.frequency).strip().lower(), DEFAULT_FREQ_P)
         img_profiles.setdefault(r.disease_id, []).append((r.imaging_id, p, float(r.abnormal_probability)))
     comp_profiles = {}
     for r in dcm.itertuples(index=False):
-        p = 0.5 * gp.FREQ_P.get(str(r.frequency).strip().lower(), gp.DEFAULT_FREQ_P)
+        p = 0.5 * FREQ_P.get(str(r.frequency).strip().lower(), DEFAULT_FREQ_P)
         comp_profiles.setdefault(r.disease_id, []).append((r.complication_id, r.severity_id, p))
 
-    sev_ids = list(gp.SEV_IDS.values())
-    sev01, sev_lvl = gt.severity_levels(sev_m, sev_ids)
+    sev_ids = list(SEV_IDS.values())
+    sev01, sev_lvl = severity_levels(sev_m, sev_ids)
     sev_name = sev_m.set_index("severity_id")["severity_name"].to_dict()
 
     dtm["priority"] = pd.to_numeric(dtm["priority"], errors="coerce").fillna(5).astype(int)
@@ -299,19 +453,19 @@ def main():
         disease = dis_ids[k]
         c = cfg.loc[disease]
         for _ in range(counts[t, h, k]):
-            sev_p = np.array([c[x] for x in gp.SEV_IDS], dtype=float)
+            sev_p = np.array([c[x] for x in SEV_IDS], dtype=float)
             severity = str(rng.choice(sev_ids, p=sev_p / sev_p.sum()))
             lvl = sev01[severity]
             age = int(rng.integers(c["preferred_age_min"], c["preferred_age_max"] + 1)) \
-                if rng.random() < gp.PREF_AGE_SHARE else int(rng.integers(1, 91))
+                if rng.random() < PREF_AGE_SHARE else int(rng.integers(1, 91))
 
-            sym = (rng.random(len(symptoms)) < gp.NOISE_SYMPTOM_P).astype(int)
+            sym = (rng.random(len(symptoms)) < NOISE_SYMPTOM_P).astype(int)
             for j, p in profiles[disease]:
                 if rng.random() < p:
                     sym[j] = 1
             if sym.sum() == 0:
                 sym[max(profiles[disease], key=lambda x: x[1])[0]] = 1
-            vitals = gp.sample_vitals(rng, vit, disease, severity)
+            vitals = sample_vitals(rng, vit, disease, severity)
 
             atyp_p = ATYPICAL_P * (2 if age < 5 or age > 65 else 1)
             atypical = "none"
@@ -322,7 +476,7 @@ def main():
             row = {
                 "encounter_date": dates[t].date().isoformat(),
                 "hospital_id": hosp_ids[h], "age": age,
-                "gender": gp.sample_gender(rng, c["preferred_gender"]),
+                "gender": sample_gender(rng, c["preferred_gender"]),
                 **vitals,
                 "days_since_onset": int(np.clip(1 + rng.poisson(2 + 1.5 * sev_lvl[severity]), 1, 21)),
             }
@@ -355,7 +509,7 @@ def main():
     df.insert(0, "encounter_id", [f"E{i:06d}" for i in range(n)])
 
     # ---- step 3: treatment + outcome (same simulation as generate_treatments.py)
-    rf = gt.risk_factors(df)
+    rf = risk_factors(df)
     tx_cols = {k: [] for k in ["treatment_id", "treatment_name", "treatment_category", "treatment_type", "route",
                                "inpatient_required", "priority", "first_line", "success", "recovery_days",
                                "_oracle_success_prob", "admitted", "icu", "length_of_stay_days", "died"]}
@@ -366,15 +520,15 @@ def main():
         if rng.random() < args.explore:
             w = np.ones(len(cands))
         else:
-            w = (1 / cands["priority"].clip(lower=1)).to_numpy() * np.where(cands["first_line"].map(gt.yes), 2.0, 1.0)
+            w = (1 / cands["priority"].clip(lower=1)).to_numpy() * np.where(cands["first_line"].map(yes), 2.0, 1.0)
         tx = cands.iloc[rng.choice(len(cands), p=w / w.sum())]
         sev = sev01[s]
-        p = gt.success_prob(None, rf.iloc[i], sev, tx)
+        p = success_prob(None, rf.iloc[i], sev, tx)
         ok = int(rng.random() < p)
-        days = gt.BASE_DAYS[min(sev_lvl[s], len(gt.BASE_DAYS) - 1)] * (1 + 0.6 * (1 - p))
+        days = BASE_DAYS[min(sev_lvl[s], len(BASE_DAYS) - 1)] * (1 + 0.6 * (1 - p))
         days = int(round(max(days * rng.lognormal(0, 0.2) * (1.0 if ok else 1.5), 1)))
 
-        inpatient = gt.yes(tx.get("inpatient_required", "No"))
+        inpatient = yes(tx.get("inpatient_required", "No"))
         admitted = int(inpatient or s == "SV003" or (s == "SV002" and rng.random() < 0.3))
         icu = int(s == "SV003" and rng.random() < np.clip(0.25 + 0.5 * rf.iloc[i]["hypoxia"], 0, 0.9))
         died = int(not ok and ((icu and rng.random() < 0.35) or (s == "SV003" and rng.random() < 0.08)))
@@ -382,7 +536,7 @@ def main():
                          ("treatment_category", tx.get("treatment_category")),
                          ("treatment_type", tx.get("treatment_type")), ("route", tx.get("route")),
                          ("inpatient_required", int(inpatient)), ("priority", int(tx["priority"])),
-                         ("first_line", int(gt.yes(tx["first_line"]))), ("success", ok),
+                         ("first_line", int(yes(tx["first_line"]))), ("success", ok),
                          ("recovery_days", days), ("_oracle_success_prob", round(p, 4)),
                          ("admitted", admitted), ("icu", icu),
                          ("length_of_stay_days", max(1, round(days * 0.6)) if admitted else 0), ("died", died)]:
@@ -405,7 +559,7 @@ def main():
     order = (["encounter_id", "patient_token", "encounter_date", "year", "month", "day_of_week", "week_of_year",
               "hospital_id", "hospital_name", "city", "state", "hospital_type", "level", "beds", "node_name",
               "region", "climate", "urban_rural", "catchment_population", "daily_encounters_at_hospital",
-              "age", "gender"] + gp.VITALS + ["days_since_onset"] + symptoms
+              "age", "gender"] + VITALS + ["days_since_onset"] + symptoms
              + sorted(c for c in df if c.startswith("lab_")) + sorted(c for c in df if c.startswith("img_"))
              + ["disease_id", "disease_name", "disease_category", "communicable",
                 "severity_id", "severity_name", "has_complication", "n_complications", "complication_ids",

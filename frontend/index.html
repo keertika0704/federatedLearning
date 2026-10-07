@@ -88,29 +88,24 @@
 
     <section class="view severity-view hidden" id="severity-view" aria-labelledby="severity-title">
       <div class="results-topline"><button class="back-button" id="back-to-intake" type="button"><span aria-hidden="true">←</span> Edit patient</button><div class="eyebrow"><span class="eyebrow-line"></span> CLINICIAN REVIEW <span class="eyebrow-index">02 / 03</span></div></div>
-      <div class="page-intro severity-intro"><p class="result-patient-label">PATIENT <span id="severity-patient-name"></span></p><h1 id="severity-title">Prediction <em>ready.</em></h1><p class="intro-copy">Review the most likely condition, then assess severity to generate the treatment plan.</p></div>
+      <div class="page-intro severity-intro"><p class="result-patient-label">PATIENT <span id="severity-patient-name"></span></p><h1 id="severity-title">Prediction <em>ready.</em></h1></div>
       <div class="severity-step-layout">
         <section class="predicted-condition">
-          <p class="result-kicker">MOST LIKELY CONDITION</p>
           <div id="step-diagnosis" class="diagnosis-area"></div>
-          <p class="prediction-note">This is a model prediction, not a confirmed diagnosis.</p>
+          <div id="step-atypical" class="atypical-area"></div>
         </section>
         <form class="severity-panel severity-step-panel" id="severity-form">
-          <div class="side-kicker"><span class="pulse-mark">+</span> CLINICAL CONTEXT</div>
-          <h2>Assess severity</h2>
-          <p>Choose the clinician-assessed severity. The disease model does not infer severity.</p>
-          <fieldset class="severity-options">
+          <h2>How severe is it?</h2>
+          <fieldset class="severity-tiles">
             <legend class="sr-only">Select clinician-assessed severity</legend>
-            <label class="severity-option mild"><input type="radio" name="severity_id" value="SV001" required><span class="severity-indicator"></span><span><strong>Mild</strong><small>Stable, outpatient care</small></span><span class="severity-code">01</span></label>
-            <label class="severity-option moderate"><input type="radio" name="severity_id" value="SV002"><span class="severity-indicator"></span><span><strong>Moderate</strong><small>Closer monitoring needed</small></span><span class="severity-code">02</span></label>
-            <label class="severity-option severe"><input type="radio" name="severity_id" value="SV003"><span class="severity-indicator"></span><span><strong>Severe</strong><small>Urgent hospital assessment</small></span><span class="severity-code">03</span></label>
+            <label class="sev-tile mild"><input type="radio" name="severity_id" value="SV001" required><span class="sev-dot"></span><strong>Mild</strong></label>
+            <label class="sev-tile moderate"><input type="radio" name="severity_id" value="SV002"><span class="sev-dot"></span><strong>Moderate</strong></label>
+            <label class="sev-tile severe"><input type="radio" name="severity_id" value="SV003"><span class="sev-dot"></span><strong>Severe</strong></label>
           </fieldset>
-          <div class="severity-note"><span aria-hidden="true">i</span> Severity is used to rank the recommended treatments.</div>
           <button class="diagnose-button plan-button" id="plan-button" type="submit"><span>Build treatment plan</span><span class="button-arrow" aria-hidden="true">→</span></button>
           <p class="form-error hidden" id="severity-error" role="alert"></p>
         </form>
       </div>
-      <footer class="page-footer"><span>CAREPATH <span>·</span> CLINICAL SUPPORT</span><span>For use by qualified healthcare professionals</span></footer>
     </section>
 
     <section class="view results-view hidden" id="results-view" aria-labelledby="results-title">
@@ -122,22 +117,20 @@
       <div class="results-layout">
         <div class="results-main">
           <section class="diagnosis-block">
-            <div class="result-section-title"><span class="result-step">01</span><div><p class="result-kicker">MODEL PREDICTION</p><h2>Most likely condition</h2></div></div>
             <div id="primary-diagnosis" class="diagnosis-area"></div>
+            <div id="result-atypical" class="atypical-area"></div>
           </section>
           <section class="treatment-block">
-            <div class="result-section-title"><span class="result-step">02</span><div><p class="result-kicker">TREATMENT MODEL</p><h2>Recommended treatment plan</h2></div></div>
-            <p class="treatment-context" id="treatment-context"></p>
+            <p class="result-kicker">RECOMMENDED TREATMENTS</p>
             <div class="treatment-list" id="treatment-list"></div>
           </section>
         </div>
         <aside class="results-aside">
-          <section class="patient-summary"><p class="result-kicker">PATIENT SNAPSHOT</p><div class="snapshot-vitals" id="snapshot-vitals"></div><div class="snapshot-symptoms"><p>REPORTED SYMPTOMS</p><div id="snapshot-symptoms"></div></div></section>
-          <section class="review-note"><span class="review-symbol" aria-hidden="true">!</span><div><strong>Clinical review required</strong><p>Use the recommendations alongside examination, investigations, local guidelines, and clinician judgment.</p></div></section>
+          <section class="patient-summary"><p class="result-kicker">VITALS</p><div class="vital-gauges" id="snapshot-vitals"></div><div class="snapshot-symptoms"><p class="result-kicker">SYMPTOMS</p><div id="snapshot-symptoms"></div></div></section>
+          <p class="review-line"><span aria-hidden="true">!</span> Clinician review required</p>
           <button class="new-assessment" id="new-assessment" type="button">Start a new assessment <span aria-hidden="true">↗</span></button>
         </aside>
       </div>
-      <footer class="page-footer"><span>CAREPATH <span>·</span> CLINICAL SUPPORT</span><span>For use by qualified healthcare professionals</span></footer>
     </section>
   </main>
 
