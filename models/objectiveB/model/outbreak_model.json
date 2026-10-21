@@ -1,0 +1,24 @@
+{
+  "params": {
+    "window": 7,
+    "gap": 7,
+    "n_blocks": 8,
+    "min_blocks": 4,
+    "season_shifts": [
+      357,
+      364,
+      371
+    ],
+    "min_base": 1.0,
+    "p_thresh": 0.01,
+    "min_count": 4,
+    "min_ratio": 1.3,
+    "min_sites": 2,
+    "min_sim": 0.3,
+    "atyp_min_base_rate": 0.02,
+    "atyp_p_thresh": 0.001,
+    "atyp_min_count": 4,
+    "atyp_min_ratio": 2.0,
+    "resolve_after_days": 14
+  }
+}

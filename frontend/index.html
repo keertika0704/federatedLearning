@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
+  <script src="/surveillance.js" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -17,6 +18,10 @@
       <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
       <span>carepath<span class="brand-period">.</span></span>
     </a>
+    <nav class="topnav" aria-label="Sections">
+      <button class="topnav-tab active" type="button" data-tab="assessment" aria-current="page">Assessment</button>
+      <button class="topnav-tab" type="button" data-tab="surveillance">Surveillance <span class="tab-badge hidden" id="alert-badge" aria-label="open alerts">0</span></button>
+    </nav>
     <div class="topbar-meta"><span class="status-dot"></span> Clinical decision support <span class="meta-divider"></span> Private session</div>
     <div class="session-status"><span class="status-dot"></span> Secure session</div>
   </header>
@@ -131,6 +136,36 @@
           <button class="new-assessment" id="new-assessment" type="button">Start a new assessment <span aria-hidden="true">↗</span></button>
         </aside>
       </div>
+    </section>
+
+    <section class="view surveillance-view hidden" id="surveillance-view" aria-labelledby="surv-title">
+      <div class="page-intro">
+        <div class="eyebrow"><span class="eyebrow-line"></span> POPULATION SURVEILLANCE</div>
+        <h1 id="surv-title">Watch the <em>spread.</em></h1>
+        <p class="intro-copy">Each hospital shares only daily counts, never patient records. This page flags a disease, or a cluster of unusual presentations, that is rising at several hospitals at the same time.</p>
+      </div>
+
+      <div class="surv-controls">
+        <label class="field" for="surv-date"><span>Analyse as of <i>replay any past day</i></span><input id="surv-date" type="date"></label>
+        <button class="surv-button" id="surv-run" type="button">Run scan</button>
+        <button class="surv-button secondary" id="surv-next" type="button">Next day →</button>
+      </div>
+      <p class="surv-status" id="surv-status" role="status"></p>
+      <p class="form-error hidden" id="surv-error" role="alert"></p>
+
+      <section class="surv-section">
+        <p class="result-kicker">ALERTS</p>
+        <div class="alert-list" id="alert-list" aria-live="polite"></div>
+      </section>
+
+      <section class="surv-section">
+        <p class="result-kicker">LAST 7 DAYS VS NORMAL <span class="surv-day" id="trend-day"></span></p>
+        <div class="heat-wrap"><table class="heat-grid" id="heat-grid"></table></div>
+        <p class="heat-legend"><span class="heat-key lvl-0"></span> normal <span class="heat-key lvl-1"></span> up 30% or more <span class="heat-key lvl-2"></span> statistically unusual</p>
+      </section>
+
+      <p class="surv-note" id="surv-note"></p>
+      <footer class="page-footer"><span>CAREPATH <span>·</span> SURVEILLANCE</span><span>Decision support, not a diagnosis</span></footer>
     </section>
   </main>
 

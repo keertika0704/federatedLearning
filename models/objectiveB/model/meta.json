@@ -1,0 +1,58 @@
+{
+  "model": "poisson-baseline + cross-site symptom-signature agreement",
+  "trained_at": "2026-10-21T02:41:37+00:00",
+  "calibration_days": [
+    "2025-01-20",
+    "2025-09-30"
+  ],
+  "test_days": [
+    "2025-10-01",
+    "2025-12-30"
+  ],
+  "max_false_notifications_per_year": 6.0,
+  "metrics": {
+    "calibration": {
+      "days": 254,
+      "episodes": 40,
+      "linked_episodes": 32,
+      "site_signal_recall": 0.725,
+      "alert_recall": 0.525,
+      "linked_alert_recall": 0.562,
+      "median_delay_days": 8.0,
+      "alert_days": 83,
+      "notifications": 11,
+      "notification_precision": 0.727,
+      "false_notifications_per_year": 4.3,
+      "novel_alert_days_per_year": 0.0
+    },
+    "test": {
+      "days": 91,
+      "episodes": 21,
+      "linked_episodes": 14,
+      "site_signal_recall": 0.714,
+      "alert_recall": 0.381,
+      "linked_alert_recall": 0.429,
+      "median_delay_days": 8.0,
+      "alert_days": 24,
+      "notifications": 4,
+      "notification_precision": 0.75,
+      "false_notifications_per_year": 4.0,
+      "novel_alert_days_per_year": 0.0
+    },
+    "test_with_default_thresholds": {
+      "days": 91,
+      "episodes": 21,
+      "linked_episodes": 14,
+      "site_signal_recall": 0.714,
+      "alert_recall": 0.381,
+      "linked_alert_recall": 0.429,
+      "median_delay_days": 8.0,
+      "alert_days": 25,
+      "notifications": 4,
+      "notification_precision": 0.75,
+      "false_notifications_per_year": 4.0,
+      "novel_alert_days_per_year": 4.0
+    }
+  },
+  "note": "the generator injects no novel pathogen, so the possible-novel path is only checked for false alarms"
+}

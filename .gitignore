@@ -6,3 +6,6 @@ __pycache__/
 data/generated/generated_data/synthetic_data.csv
 
 predictions.csv
+
+# objective B: node summaries and alerts
+data/outbreak.db
