@@ -1,0 +1,30 @@
+{
+  "federated_test": {
+    "days": 91,
+    "episodes": 21,
+    "linked_episodes": 14,
+    "site_signal_recall": 0.714,
+    "alert_recall": 0.381,
+    "linked_alert_recall": 0.429,
+    "median_delay_days": 8.0,
+    "alert_days": 24,
+    "notifications": 4,
+    "notification_precision": 0.75,
+    "false_notifications_per_year": 4.0,
+    "novel_alert_days_per_year": 0.0
+  },
+  "centralised_test": {
+    "days": 91,
+    "episodes": 21,
+    "linked_episodes": 14,
+    "site_signal_recall": 0.714,
+    "alert_recall": 0.381,
+    "linked_alert_recall": 0.429,
+    "median_delay_days": 8.0,
+    "alert_days": 24,
+    "notifications": 4,
+    "notification_precision": 0.75,
+    "false_notifications_per_year": 4.0,
+    "novel_alert_days_per_year": 0.0
+  }
+}

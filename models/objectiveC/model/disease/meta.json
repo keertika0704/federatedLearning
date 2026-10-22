@@ -1,0 +1,361 @@
+{
+  "features": [
+    "age",
+    "gender",
+    "temperature",
+    "heart_rate",
+    "respiratory_rate",
+    "spo2",
+    "systolic_bp",
+    "diastolic_bp",
+    "S001",
+    "S002",
+    "S003",
+    "S004",
+    "S005",
+    "S006",
+    "S007",
+    "S008",
+    "S009",
+    "S010",
+    "S011",
+    "S012",
+    "S013",
+    "S014",
+    "S015",
+    "S016",
+    "S017",
+    "S018",
+    "S019",
+    "S020",
+    "S021",
+    "S022",
+    "S023",
+    "S024",
+    "S025",
+    "S026",
+    "S027",
+    "S028",
+    "pulse_pressure",
+    "symptom_count"
+  ],
+  "classes": [
+    "D001",
+    "D002",
+    "D003",
+    "D004",
+    "D005",
+    "D006",
+    "D007",
+    "D008"
+  ],
+  "use_hospital": false,
+  "federated": {
+    "strategy": "FedXgbCyclic",
+    "iterations": 300,
+    "turns": 30,
+    "local_iters": 10,
+    "history": [
+      {
+        "turn": 1,
+        "hospital": "H004",
+        "metrics": {
+          "accuracy": 0.9288537549407114,
+          "macro_f1": 0.9049121809220886,
+          "top3_accuracy": 0.9650856389986825,
+          "D003_recall": 0.6037735849056604
+        }
+      },
+      {
+        "turn": 2,
+        "hospital": "H007",
+        "metrics": {
+          "accuracy": 0.9543828264758497,
+          "macro_f1": 0.941556537878959,
+          "top3_accuracy": 0.9901610017889088,
+          "D003_recall": 0.8125
+        }
+      },
+      {
+        "turn": 3,
+        "hospital": "H002",
+        "metrics": {
+          "accuracy": 0.9585062240663901,
+          "macro_f1": 0.9462187088054415,
+          "top3_accuracy": 0.9923928077455049,
+          "D003_recall": 0.76
+        }
+      },
+      {
+        "turn": 4,
+        "hospital": "H006",
+        "metrics": {
+          "accuracy": 0.9598633646456021,
+          "macro_f1": 0.9448575835117766,
+          "top3_accuracy": 0.9948761742100769,
+          "D003_recall": 0.6976744186046512
+        }
+      },
+      {
+        "turn": 5,
+        "hospital": "H001",
+        "metrics": {
+          "accuracy": 0.9575892857142857,
+          "macro_f1": 0.9500783221701711,
+          "top3_accuracy": 0.99609375,
+          "D003_recall": 0.7419354838709677
+        }
+      },
+      {
+        "turn": 6,
+        "hospital": "H010",
+        "metrics": {
+          "accuracy": 0.968671679197995,
+          "macro_f1": 0.9515100264184857,
+          "top3_accuracy": 0.9974937343358395,
+          "D003_recall": 0.7727272727272727
+        }
+      },
+      {
+        "turn": 7,
+        "hospital": "H003",
+        "metrics": {
+          "accuracy": 0.9606936416184971,
+          "macro_f1": 0.9354650314854212,
+          "top3_accuracy": 0.9976878612716763,
+          "D003_recall": 0.5535714285714286
+        }
+      },
+      {
+        "turn": 8,
+        "hospital": "H009",
+        "metrics": {
+          "accuracy": 0.9605263157894737,
+          "macro_f1": 0.9364690287893684,
+          "top3_accuracy": 0.9949392712550608,
+          "D003_recall": 0.6296296296296297
+        }
+      },
+      {
+        "turn": 9,
+        "hospital": "H008",
+        "metrics": {
+          "accuracy": 0.9557964970809008,
+          "macro_f1": 0.939455437308053,
+          "top3_accuracy": 0.9949958298582152,
+          "D003_recall": 0.6
+        }
+      },
+      {
+        "turn": 10,
+        "hospital": "H005",
+        "metrics": {
+          "accuracy": 0.9599248591108328,
+          "macro_f1": 0.9394260564983727,
+          "top3_accuracy": 0.9981214777708203,
+          "D003_recall": 0.6
+        }
+      },
+      {
+        "turn": 11,
+        "hospital": "H004",
+        "metrics": {
+          "accuracy": 0.9624505928853755,
+          "macro_f1": 0.949269063471387,
+          "top3_accuracy": 0.994729907773386,
+          "D003_recall": 0.7358490566037735
+        }
+      },
+      {
+        "turn": 12,
+        "hospital": "H007",
+        "metrics": {
+          "accuracy": 0.9731663685152058,
+          "macro_f1": 0.9707296794047413,
+          "top3_accuracy": 1.0,
+          "D003_recall": 1.0
+        }
+      },
+      {
+        "turn": 13,
+        "hospital": "H002",
+        "metrics": {
+          "accuracy": 0.9695712309820194,
+          "macro_f1": 0.9623736288306842,
+          "top3_accuracy": 0.9993084370677732,
+          "D003_recall": 0.88
+        }
+      },
+      {
+        "turn": 14,
+        "hospital": "H006",
+        "metrics": {
+          "accuracy": 0.9615713065755764,
+          "macro_f1": 0.9481710746078487,
+          "top3_accuracy": 0.9982920580700256,
+          "D003_recall": 0.7674418604651163
+        }
+      },
+      {
+        "turn": 15,
+        "hospital": "H001",
+        "metrics": {
+          "accuracy": 0.9609375,
+          "macro_f1": 0.9522672695612959,
+          "top3_accuracy": 0.9983258928571429,
+          "D003_recall": 0.7419354838709677
+        }
+      },
+      {
+        "turn": 16,
+        "hospital": "H010",
+        "metrics": {
+          "accuracy": 0.9705513784461153,
+          "macro_f1": 0.9430688601464088,
+          "top3_accuracy": 1.0,
+          "D003_recall": 0.7727272727272727
+        }
+      },
+      {
+        "turn": 17,
+        "hospital": "H003",
+        "metrics": {
+          "accuracy": 0.9589595375722544,
+          "macro_f1": 0.9346751549904955,
+          "top3_accuracy": 0.9988439306358381,
+          "D003_recall": 0.5892857142857143
+        }
+      },
+      {
+        "turn": 18,
+        "hospital": "H009",
+        "metrics": {
+          "accuracy": 0.9605263157894737,
+          "macro_f1": 0.9387794663446181,
+          "top3_accuracy": 0.9969635627530364,
+          "D003_recall": 0.6666666666666666
+        }
+      },
+      {
+        "turn": 19,
+        "hospital": "H008",
+        "metrics": {
+          "accuracy": 0.9616346955796498,
+          "macro_f1": 0.9428430461114009,
+          "top3_accuracy": 0.9974979149291076,
+          "D003_recall": 0.6444444444444445
+        }
+      },
+      {
+        "turn": 20,
+        "hospital": "H005",
+        "metrics": {
+          "accuracy": 0.9618033813400125,
+          "macro_f1": 0.9536583939565719,
+          "top3_accuracy": 0.9987476518472135,
+          "D003_recall": 0.75
+        }
+      },
+      {
+        "turn": 21,
+        "hospital": "H004",
+        "metrics": {
+          "accuracy": 0.9664031620553359,
+          "macro_f1": 0.9546232477885679,
+          "top3_accuracy": 0.997364953886693,
+          "D003_recall": 0.7547169811320755
+        }
+      },
+      {
+        "turn": 22,
+        "hospital": "H007",
+        "metrics": {
+          "accuracy": 0.9713774597495528,
+          "macro_f1": 0.968398322037987,
+          "top3_accuracy": 1.0,
+          "D003_recall": 1.0
+        }
+      },
+      {
+        "turn": 23,
+        "hospital": "H002",
+        "metrics": {
+          "accuracy": 0.9730290456431535,
+          "macro_f1": 0.968358522596902,
+          "top3_accuracy": 0.9993084370677732,
+          "D003_recall": 0.96
+        }
+      },
+      {
+        "turn": 24,
+        "hospital": "H006",
+        "metrics": {
+          "accuracy": 0.9649871904355252,
+          "macro_f1": 0.9523978124726569,
+          "top3_accuracy": 0.9991460290350128,
+          "D003_recall": 0.7674418604651163
+        }
+      },
+      {
+        "turn": 25,
+        "hospital": "H001",
+        "metrics": {
+          "accuracy": 0.9609375,
+          "macro_f1": 0.9507017504041827,
+          "top3_accuracy": 0.9983258928571429,
+          "D003_recall": 0.7419354838709677
+        }
+      },
+      {
+        "turn": 26,
+        "hospital": "H010",
+        "metrics": {
+          "accuracy": 0.9699248120300752,
+          "macro_f1": 0.9496222327757132,
+          "top3_accuracy": 0.9993734335839599,
+          "D003_recall": 0.8636363636363636
+        }
+      },
+      {
+        "turn": 27,
+        "hospital": "H003",
+        "metrics": {
+          "accuracy": 0.9641618497109826,
+          "macro_f1": 0.9401566797863807,
+          "top3_accuracy": 0.999421965317919,
+          "D003_recall": 0.6071428571428571
+        }
+      },
+      {
+        "turn": 28,
+        "hospital": "H009",
+        "metrics": {
+          "accuracy": 0.9635627530364372,
+          "macro_f1": 0.9388952251713807,
+          "top3_accuracy": 0.9969635627530364,
+          "D003_recall": 0.6666666666666666
+        }
+      },
+      {
+        "turn": 29,
+        "hospital": "H008",
+        "metrics": {
+          "accuracy": 0.9624687239366139,
+          "macro_f1": 0.9456447313371652,
+          "top3_accuracy": 0.9974979149291076,
+          "D003_recall": 0.6888888888888889
+        }
+      },
+      {
+        "turn": 30,
+        "hospital": "H005",
+        "metrics": {
+          "accuracy": 0.9636819035691923,
+          "macro_f1": 0.9554749548271266,
+          "top3_accuracy": 0.9993738259236068,
+          "D003_recall": 0.8
+        }
+      }
+    ]
+  }
+}

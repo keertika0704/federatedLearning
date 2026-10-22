@@ -38,21 +38,27 @@
   }
 
   // ---------------------------------------------------------------- tabs
+  // "assessment" is every view that is not a tab view (the intake / severity / results steps). Other tabs register
+  // themselves with window.carepathTabs.register(name, viewSelector, onEnter), e.g. the federated learning tab.
+  const tabViews = { surveillance: { view: "#surveillance-view", enter: () => (loaded ? refreshAlerts() : loadPage()) } };
+  let activeTab = "assessment";
+  window.carepathTabs = { register: (name, view, enter) => { tabViews[name] = { view, enter }; } };
+
   function showTab(tab) {
-    const surveillance = $("#surveillance-view");
-    const entering = tab === "surveillance";
-    if (entering === !surveillance.classList.contains("hidden")) return;
-    if (entering) {
-      const open = [...document.querySelectorAll(".shell > .view")].find(v => v !== surveillance && !v.classList.contains("hidden"));
+    if (tab === activeTab || (tab !== "assessment" && !tabViews[tab])) return;
+    const views = [...document.querySelectorAll(".shell > .view")];
+    if (activeTab === "assessment") {
+      const open = views.find(v => !v.classList.contains("hidden"));
       if (open) previousView = "#" + open.id;
-      document.querySelectorAll(".shell > .view").forEach(v => v.classList.add("hidden"));
-      surveillance.classList.remove("hidden");
-      if (!loaded) loadPage();
-      else refreshAlerts();
-    } else {
-      surveillance.classList.add("hidden");
-      ($(previousView) || $("#intake-view")).classList.remove("hidden");
     }
+    views.forEach(v => v.classList.add("hidden"));
+    if (tab === "assessment") {
+      ($(previousView) || $("#intake-view")).classList.remove("hidden");
+    } else {
+      $(tabViews[tab].view).classList.remove("hidden");
+      tabViews[tab].enter();
+    }
+    activeTab = tab;
     document.querySelectorAll(".topnav-tab").forEach(button => {
       const active = button.dataset.tab === tab;
       button.classList.toggle("active", active);

@@ -1,4 +1,4 @@
-"""Combined API application for disease prediction, atypical-presentation flagging, treatment recommendation and outbreak detection."""
+"""Combined API application for disease prediction, atypical-presentation flagging, treatment recommendation, outbreak detection and federated-learning results."""
 
 import json
 import os
@@ -14,12 +14,14 @@ from backend.security import API_KEY, UI_SESSION_TOKEN
 from models.objectiveE.treatment_prediction.api import router as treatment_router
 from models.objectiveA.api import router as atypical_router
 from models.objectiveB.api import router as outbreak_router
+from models.objectiveC.api import router as federated_router
 
 app = FastAPI(title="Patient Disease and Treatment API", version="1.0.0", docs_url=None)
 app.include_router(disease_router)
 app.include_router(treatment_router)
 app.include_router(atypical_router)
 app.include_router(outbreak_router)
+app.include_router(federated_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.getenv(

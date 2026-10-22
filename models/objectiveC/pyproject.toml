@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "carepath-fl"
+version = "0.1.0"
+description = "Federated learning across hospitals H001-H010 (Flower)"
+requires-python = ">=3.11"
+dependencies = [
+    "flwr>=1.41.0",
+    "xgboost>=2.1",
+    "pandas>=2.2",
+    "scikit-learn>=1.5",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["carepath_fl"]
+
+[tool.flwr.app]
+publisher = "carepath"
+
+[tool.flwr.app.components]
+serverapp = "carepath_fl.server_app:app"
+clientapp = "carepath_fl.client_app:app"
+
+# 10 hospitals; each turn one hospital adds `local-iters` boosting iterations (FedXgbCyclic).
+# 100 turns x 1 iteration and 20 x 5 gave 96.3% pooled test accuracy offline; 30 x 10 gave 96.6%.
+[tool.flwr.app.config]
+task = "disease"          # disease | treatment, e.g.  flwr run models/objectiveC --run-config 'task="treatment"'
+num-server-rounds = 0     # 0 = the task's own default
+local-iters = 0           # 0 = the task's own default
+save-model = true
+
+
+#######################################################################
+# CONFIGURATION MIGRATION NOTICE:
+#
+# What was previously called "federation config" for SuperLink
+# connections in pyproject.toml has been renamed and moved.
+#
+# These settings are now **SuperLink connection configuration**
+# and are defined in the Flower configuration file.
+#
+# The entries below are commented out intentionally and are kept
+# only as a migration reference.
+#
+# Docs: https://flower.ai/docs/framework/ref-flower-configuration.html
+#######################################################################
+
+# [tool.flwr.federations]
+# default = "local-simulation"
+
+# [tool.flwr.federations.local-simulation]
+# options.num-supernodes = 10

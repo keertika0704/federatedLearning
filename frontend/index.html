@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
   <script src="/surveillance.js" defer></script>
+  <script src="/federated.js" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -21,6 +22,7 @@
     <nav class="topnav" aria-label="Sections">
       <button class="topnav-tab active" type="button" data-tab="assessment" aria-current="page">Assessment</button>
       <button class="topnav-tab" type="button" data-tab="surveillance">Surveillance <span class="tab-badge hidden" id="alert-badge" aria-label="open alerts">0</span></button>
+      <button class="topnav-tab" type="button" data-tab="federated" aria-label="Federated learning"><span class="tab-long" aria-hidden="true">Federated learning</span><span class="tab-short" aria-hidden="true">Federated</span></button>
     </nav>
     <div class="topbar-meta"><span class="status-dot"></span> Clinical decision support <span class="meta-divider"></span> Private session</div>
     <div class="session-status"><span class="status-dot"></span> Secure session</div>
@@ -166,6 +168,28 @@
 
       <p class="surv-note" id="surv-note"></p>
       <footer class="page-footer"><span>CAREPATH <span>·</span> SURVEILLANCE</span><span>Decision support, not a diagnosis</span></footer>
+    </section>
+
+    <section class="view federated-view hidden" id="federated-view" aria-labelledby="fl-title">
+      <div class="page-intro">
+        <div class="eyebrow"><span class="eyebrow-line"></span> OBJECTIVE C · FEDERATED LEARNING</div>
+        <h1 id="fl-title">Learn together, <em>keep the data.</em></h1>
+        <p class="intro-copy">Every hospital trains on its own patients. Only the model, never a patient record, travels to be combined, so each hospital benefits from what all of them have seen.</p>
+      </div>
+      <p class="form-error hidden" id="fl-error" role="alert"></p>
+      <div class="fl-kpis" id="fl-kpis"></div>
+
+      <div class="fl-tasks" id="fl-tasks" role="group" aria-label="Choose a model"></div>
+      <div class="fl-stage">
+        <figure class="fl-network" id="fl-network"></figure>
+        <div class="fl-detail" id="fl-detail" aria-live="polite"></div>
+      </div>
+
+      <section class="surv-section" id="fl-results" aria-live="polite"></section>
+      <section class="surv-section hidden" id="fl-replay"></section>
+      <section class="surv-section" id="fl-privacy"></section>
+      <p class="surv-note" id="fl-scope"></p>
+      <footer class="page-footer"><span>CAREPATH <span>·</span> FEDERATED LEARNING</span><span>Results from a simulation on synthetic data</span></footer>
     </section>
   </main>
 

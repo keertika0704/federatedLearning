@@ -1,0 +1,3 @@
+# deployment credentials and runtime state (private keys must never be committed)
+deploy/secrets/
+deploy/work/

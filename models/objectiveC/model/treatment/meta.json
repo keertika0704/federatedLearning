@@ -1,0 +1,1619 @@
+{
+  "model": "Federated XGBoost S-learner (FedXgbCyclic): P(success) classifier + recovery-days regressor",
+  "xgboost_version": "3.4.1",
+  "feature_cols": [
+    "disease_id",
+    "severity_id",
+    "age",
+    "gender",
+    "temperature",
+    "heart_rate",
+    "respiratory_rate",
+    "spo2",
+    "systolic_bp",
+    "diastolic_bp",
+    "S001",
+    "S002",
+    "S003",
+    "S004",
+    "S005",
+    "S006",
+    "S007",
+    "S008",
+    "S009",
+    "S010",
+    "S011",
+    "S012",
+    "S013",
+    "S014",
+    "S015",
+    "S016",
+    "S017",
+    "S018",
+    "S019",
+    "S020",
+    "S021",
+    "S022",
+    "S023",
+    "S024",
+    "S025",
+    "S026",
+    "S027",
+    "S028",
+    "treatment_id",
+    "treatment_category",
+    "treatment_type",
+    "route",
+    "inpatient_required",
+    "priority",
+    "first_line"
+  ],
+  "categories": {
+    "gender": [
+      "Female",
+      "Male"
+    ],
+    "disease_id": [
+      "D001",
+      "D002",
+      "D003",
+      "D004",
+      "D005",
+      "D006",
+      "D007",
+      "D008"
+    ],
+    "severity_id": [
+      "SV001",
+      "SV002",
+      "SV003"
+    ],
+    "treatment_id": [
+      "T001",
+      "T002",
+      "T003",
+      "T004",
+      "T005",
+      "T006",
+      "T007",
+      "T008",
+      "T009",
+      "T010",
+      "T011",
+      "T012",
+      "T013",
+      "T014",
+      "T015"
+    ],
+    "treatment_category": [
+      "Hospital Care",
+      "Infection Control",
+      "Medication",
+      "Monitoring",
+      "Supportive Care"
+    ],
+    "treatment_type": [
+      "Admission",
+      "Antibiotic",
+      "Antibiotic Regimen",
+      "Antimalarial",
+      "Antipyretic",
+      "Antiviral",
+      "Corticosteroid",
+      "Fluid Therapy",
+      "Isolation",
+      "Laboratory Monitoring",
+      "Nutritional Therapy",
+      "Rehydration",
+      "Respiratory Support"
+    ],
+    "route": [
+      "Inhalation",
+      "Intravenous",
+      "Monitoring",
+      "Oral",
+      "Oral / Intravenous",
+      "missing"
+    ]
+  },
+  "patient_cols": [
+    "age",
+    "gender",
+    "temperature",
+    "heart_rate",
+    "respiratory_rate",
+    "spo2",
+    "systolic_bp",
+    "diastolic_bp",
+    "S001",
+    "S002",
+    "S003",
+    "S004",
+    "S005",
+    "S006",
+    "S007",
+    "S008",
+    "S009",
+    "S010",
+    "S011",
+    "S012",
+    "S013",
+    "S014",
+    "S015",
+    "S016",
+    "S017",
+    "S018",
+    "S019",
+    "S020",
+    "S021",
+    "S022",
+    "S023",
+    "S024",
+    "S025",
+    "S026",
+    "S027",
+    "S028"
+  ],
+  "candidates": [
+    {
+      "disease_id": "D001",
+      "severity_id": "SV001",
+      "treatment_id": "T001",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D001",
+      "severity_id": "SV001",
+      "treatment_id": "T002",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D001",
+      "severity_id": "SV002",
+      "treatment_id": "T003",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D001",
+      "severity_id": "SV003",
+      "treatment_id": "T012",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D001",
+      "severity_id": "SV003",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D002",
+      "severity_id": "SV001",
+      "treatment_id": "T004",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D002",
+      "severity_id": "SV002",
+      "treatment_id": "T004",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D002",
+      "severity_id": "SV003",
+      "treatment_id": "T003",
+      "priority": 2,
+      "first_line": 0
+    },
+    {
+      "disease_id": "D002",
+      "severity_id": "SV003",
+      "treatment_id": "T005",
+      "priority": 3,
+      "first_line": 0
+    },
+    {
+      "disease_id": "D002",
+      "severity_id": "SV003",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D003",
+      "severity_id": "SV001",
+      "treatment_id": "T001",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D003",
+      "severity_id": "SV001",
+      "treatment_id": "T002",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D003",
+      "severity_id": "SV002",
+      "treatment_id": "T001",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D003",
+      "severity_id": "SV002",
+      "treatment_id": "T002",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D003",
+      "severity_id": "SV002",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D003",
+      "severity_id": "SV003",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D004",
+      "severity_id": "SV001",
+      "treatment_id": "T001",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D004",
+      "severity_id": "SV001",
+      "treatment_id": "T006",
+      "priority": 2,
+      "first_line": 0
+    },
+    {
+      "disease_id": "D004",
+      "severity_id": "SV002",
+      "treatment_id": "T001",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D004",
+      "severity_id": "SV002",
+      "treatment_id": "T006",
+      "priority": 2,
+      "first_line": 0
+    },
+    {
+      "disease_id": "D004",
+      "severity_id": "SV002",
+      "treatment_id": "T010",
+      "priority": 2,
+      "first_line": 0
+    },
+    {
+      "disease_id": "D004",
+      "severity_id": "SV002",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D004",
+      "severity_id": "SV003",
+      "treatment_id": "T010",
+      "priority": 2,
+      "first_line": 0
+    },
+    {
+      "disease_id": "D004",
+      "severity_id": "SV003",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D005",
+      "severity_id": "SV001",
+      "treatment_id": "T001",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D005",
+      "severity_id": "SV001",
+      "treatment_id": "T015",
+      "priority": 3,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D005",
+      "severity_id": "SV002",
+      "treatment_id": "T010",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D005",
+      "severity_id": "SV003",
+      "treatment_id": "T011",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D005",
+      "severity_id": "SV003",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D006",
+      "severity_id": "SV001",
+      "treatment_id": "T007",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D006",
+      "severity_id": "SV001",
+      "treatment_id": "T015",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D006",
+      "severity_id": "SV002",
+      "treatment_id": "T007",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D006",
+      "severity_id": "SV002",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D006",
+      "severity_id": "SV002",
+      "treatment_id": "T015",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D006",
+      "severity_id": "SV003",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D007",
+      "severity_id": "SV001",
+      "treatment_id": "T009",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D007",
+      "severity_id": "SV002",
+      "treatment_id": "T008",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D007",
+      "severity_id": "SV002",
+      "treatment_id": "T009",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D007",
+      "severity_id": "SV002",
+      "treatment_id": "T014",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D007",
+      "severity_id": "SV003",
+      "treatment_id": "T008",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D007",
+      "severity_id": "SV003",
+      "treatment_id": "T014",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D008",
+      "severity_id": "SV001",
+      "treatment_id": "T002",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D008",
+      "severity_id": "SV001",
+      "treatment_id": "T013",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D008",
+      "severity_id": "SV002",
+      "treatment_id": "T003",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D008",
+      "severity_id": "SV003",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    }
+  ],
+  "candidates_by_disease": [
+    {
+      "disease_id": "D001",
+      "treatment_id": "T001",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D001",
+      "treatment_id": "T002",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D001",
+      "treatment_id": "T003",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D001",
+      "treatment_id": "T012",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D001",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D002",
+      "treatment_id": "T003",
+      "priority": 2,
+      "first_line": 0
+    },
+    {
+      "disease_id": "D002",
+      "treatment_id": "T004",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D002",
+      "treatment_id": "T005",
+      "priority": 3,
+      "first_line": 0
+    },
+    {
+      "disease_id": "D002",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D003",
+      "treatment_id": "T001",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D003",
+      "treatment_id": "T002",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D003",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D004",
+      "treatment_id": "T001",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D004",
+      "treatment_id": "T006",
+      "priority": 2,
+      "first_line": 0
+    },
+    {
+      "disease_id": "D004",
+      "treatment_id": "T010",
+      "priority": 2,
+      "first_line": 0
+    },
+    {
+      "disease_id": "D004",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D005",
+      "treatment_id": "T001",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D005",
+      "treatment_id": "T010",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D005",
+      "treatment_id": "T011",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D005",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D005",
+      "treatment_id": "T015",
+      "priority": 3,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D006",
+      "treatment_id": "T007",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D006",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D006",
+      "treatment_id": "T015",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D007",
+      "treatment_id": "T008",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D007",
+      "treatment_id": "T009",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D007",
+      "treatment_id": "T014",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D008",
+      "treatment_id": "T002",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D008",
+      "treatment_id": "T003",
+      "priority": 1,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D008",
+      "treatment_id": "T013",
+      "priority": 2,
+      "first_line": 1
+    },
+    {
+      "disease_id": "D008",
+      "treatment_id": "T014",
+      "priority": 1,
+      "first_line": 1
+    }
+  ],
+  "treatment_attributes": [
+    {
+      "treatment_id": "T001",
+      "treatment_name": "Paracetamol",
+      "treatment_category": "Medication",
+      "treatment_type": "Antipyretic",
+      "route": "Oral",
+      "inpatient_required": 0
+    },
+    {
+      "treatment_id": "T002",
+      "treatment_name": "Oral Rehydration Solution (ORS)",
+      "treatment_category": "Supportive Care",
+      "treatment_type": "Rehydration",
+      "route": "Oral",
+      "inpatient_required": 0
+    },
+    {
+      "treatment_id": "T003",
+      "treatment_name": "Intravenous Fluids",
+      "treatment_category": "Supportive Care",
+      "treatment_type": "Fluid Therapy",
+      "route": "Intravenous",
+      "inpatient_required": 1
+    },
+    {
+      "treatment_id": "T004",
+      "treatment_name": "Artemisinin-based Combination Therapy (ACT)",
+      "treatment_category": "Medication",
+      "treatment_type": "Antimalarial",
+      "route": "Oral",
+      "inpatient_required": 0
+    },
+    {
+      "treatment_id": "T005",
+      "treatment_name": "Primaquine",
+      "treatment_category": "Medication",
+      "treatment_type": "Antimalarial",
+      "route": "Oral",
+      "inpatient_required": 0
+    },
+    {
+      "treatment_id": "T006",
+      "treatment_name": "Oseltamivir",
+      "treatment_category": "Medication",
+      "treatment_type": "Antiviral",
+      "route": "Oral",
+      "inpatient_required": 0
+    },
+    {
+      "treatment_id": "T007",
+      "treatment_name": "Anti-Tubercular Therapy (ATT)",
+      "treatment_category": "Medication",
+      "treatment_type": "Antibiotic Regimen",
+      "route": "Oral",
+      "inpatient_required": 0
+    },
+    {
+      "treatment_id": "T008",
+      "treatment_name": "Ceftriaxone",
+      "treatment_category": "Medication",
+      "treatment_type": "Antibiotic",
+      "route": "Intravenous",
+      "inpatient_required": 1
+    },
+    {
+      "treatment_id": "T009",
+      "treatment_name": "Azithromycin",
+      "treatment_category": "Medication",
+      "treatment_type": "Antibiotic",
+      "route": "Oral",
+      "inpatient_required": 0
+    },
+    {
+      "treatment_id": "T010",
+      "treatment_name": "Oxygen Therapy",
+      "treatment_category": "Supportive Care",
+      "treatment_type": "Respiratory Support",
+      "route": "Inhalation",
+      "inpatient_required": 1
+    },
+    {
+      "treatment_id": "T011",
+      "treatment_name": "Dexamethasone",
+      "treatment_category": "Medication",
+      "treatment_type": "Corticosteroid",
+      "route": "Oral / Intravenous",
+      "inpatient_required": 1
+    },
+    {
+      "treatment_id": "T012",
+      "treatment_name": "Platelet Monitoring",
+      "treatment_category": "Monitoring",
+      "treatment_type": "Laboratory Monitoring",
+      "route": "Monitoring",
+      "inpatient_required": 1
+    },
+    {
+      "treatment_id": "T013",
+      "treatment_name": "Zinc Supplementation",
+      "treatment_category": "Supportive Care",
+      "treatment_type": "Nutritional Therapy",
+      "route": "Oral",
+      "inpatient_required": 0
+    },
+    {
+      "treatment_id": "T014",
+      "treatment_name": "Hospital Admission",
+      "treatment_category": "Hospital Care",
+      "treatment_type": "Admission",
+      "route": null,
+      "inpatient_required": 1
+    },
+    {
+      "treatment_id": "T015",
+      "treatment_name": "Isolation",
+      "treatment_category": "Infection Control",
+      "treatment_type": "Isolation",
+      "route": null,
+      "inpatient_required": 1
+    }
+  ],
+  "params": {
+    "success": {
+      "learning_rate": 0.05,
+      "max_depth": 5,
+      "min_child_weight": 5,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 1.0,
+      "tree_method": "hist",
+      "objective": "binary:logistic",
+      "eval_metric": "logloss"
+    },
+    "recovery": {
+      "learning_rate": 0.05,
+      "max_depth": 5,
+      "min_child_weight": 5,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 1.0,
+      "tree_method": "hist",
+      "objective": "reg:absoluteerror",
+      "eval_metric": "mae"
+    }
+  },
+  "federated": {
+    "strategy": "FedXgbCyclic",
+    "iterations": {
+      "success": 60,
+      "recovery": 160
+    },
+    "turns": 80,
+    "local_iters": 2,
+    "history": [
+      {
+        "turn": 1,
+        "hospital": "H004",
+        "metrics": {
+          "auc": 0.577326523525667,
+          "brier": 0.1816910058259964,
+          "log_loss": 0.5491088032722473,
+          "recovery_mae": 2.547057062629762
+        }
+      },
+      {
+        "turn": 2,
+        "hospital": "H003",
+        "metrics": {
+          "auc": 0.6072732805842971,
+          "brier": 0.17261947691440582,
+          "log_loss": 0.5284745693206787,
+          "recovery_mae": 2.473815194707717
+        }
+      },
+      {
+        "turn": 3,
+        "hospital": "H001",
+        "metrics": {
+          "auc": 0.6443815283122595,
+          "brier": 0.17880608141422272,
+          "log_loss": 0.5415820479393005,
+          "recovery_mae": 2.4012952966892973
+        }
+      },
+      {
+        "turn": 4,
+        "hospital": "H007",
+        "metrics": {
+          "auc": 0.6452431169127287,
+          "brier": 0.17857378721237183,
+          "log_loss": 0.5408545732498169,
+          "recovery_mae": 2.215910516559941
+        }
+      },
+      {
+        "turn": 5,
+        "hospital": "H005",
+        "metrics": {
+          "auc": 0.5583377518557795,
+          "brier": 0.1906575858592987,
+          "log_loss": 0.56864333152771,
+          "recovery_mae": 1.9537242437020326
+        }
+      },
+      {
+        "turn": 6,
+        "hospital": "H008",
+        "metrics": {
+          "auc": 0.6435964340073929,
+          "brier": 0.18236835300922394,
+          "log_loss": 0.5487951040267944,
+          "recovery_mae": 2.1965560145873404
+        }
+      },
+      {
+        "turn": 7,
+        "hospital": "H006",
+        "metrics": {
+          "auc": 0.6732854045418236,
+          "brier": 0.18741972744464874,
+          "log_loss": 0.5593242049217224,
+          "recovery_mae": 2.1608419903254106
+        }
+      },
+      {
+        "turn": 8,
+        "hospital": "H009",
+        "metrics": {
+          "auc": 0.6339683755920869,
+          "brier": 0.17833882570266724,
+          "log_loss": 0.5399900674819946,
+          "recovery_mae": 2.1292324126828412
+        }
+      },
+      {
+        "turn": 9,
+        "hospital": "H010",
+        "metrics": {
+          "auc": 0.6170974418212885,
+          "brier": 0.1855449229478836,
+          "log_loss": 0.556114137172699,
+          "recovery_mae": 1.8845150053410407
+        }
+      },
+      {
+        "turn": 10,
+        "hospital": "H002",
+        "metrics": {
+          "auc": 0.6086745871250421,
+          "brier": 0.201479971408844,
+          "log_loss": 0.5916584730148315,
+          "recovery_mae": 1.8469641729426465
+        }
+      },
+      {
+        "turn": 11,
+        "hospital": "H004",
+        "metrics": {
+          "auc": 0.604346316337751,
+          "brier": 0.17723746597766876,
+          "log_loss": 0.5378820896148682,
+          "recovery_mae": 1.8680873235066733
+        }
+      },
+      {
+        "turn": 12,
+        "hospital": "H003",
+        "metrics": {
+          "auc": 0.6085696895922094,
+          "brier": 0.16742731630802155,
+          "log_loss": 0.5158995389938354,
+          "recovery_mae": 1.813829538247881
+        }
+      },
+      {
+        "turn": 13,
+        "hospital": "H001",
+        "metrics": {
+          "auc": 0.6551621770203409,
+          "brier": 0.17371821403503418,
+          "log_loss": 0.5287588834762573,
+          "recovery_mae": 1.849108461285314
+        }
+      },
+      {
+        "turn": 14,
+        "hospital": "H007",
+        "metrics": {
+          "auc": 0.6252066351251212,
+          "brier": 0.17568616569042206,
+          "log_loss": 0.5339020490646362,
+          "recovery_mae": 1.7776368608191029
+        }
+      },
+      {
+        "turn": 15,
+        "hospital": "H005",
+        "metrics": {
+          "auc": 0.5621951219512196,
+          "brier": 0.18957184255123138,
+          "log_loss": 0.5669690370559692,
+          "recovery_mae": 1.5904608835012486
+        }
+      },
+      {
+        "turn": 16,
+        "hospital": "H008",
+        "metrics": {
+          "auc": 0.6350293542074364,
+          "brier": 0.17737314105033875,
+          "log_loss": 0.5380393266677856,
+          "recovery_mae": 1.779685090369945
+        }
+      },
+      {
+        "turn": 17,
+        "hospital": "H006",
+        "metrics": {
+          "auc": 0.6774620563733882,
+          "brier": 0.18260881304740906,
+          "log_loss": 0.5480431914329529,
+          "recovery_mae": 1.7390446359828367
+        }
+      },
+      {
+        "turn": 18,
+        "hospital": "H009",
+        "metrics": {
+          "auc": 0.6417874059626637,
+          "brier": 0.175464928150177,
+          "log_loss": 0.5331382751464844,
+          "recovery_mae": 1.7527628478809774
+        }
+      },
+      {
+        "turn": 19,
+        "hospital": "H010",
+        "metrics": {
+          "auc": 0.6034822997136188,
+          "brier": 0.18445514142513275,
+          "log_loss": 0.5545197129249573,
+          "recovery_mae": 1.601364724349395
+        }
+      },
+      {
+        "turn": 20,
+        "hospital": "H002",
+        "metrics": {
+          "auc": 0.6178519267498035,
+          "brier": 0.19910623133182526,
+          "log_loss": 0.5869771838188171,
+          "recovery_mae": 1.6365761105924743
+        }
+      },
+      {
+        "turn": 21,
+        "hospital": "H004",
+        "metrics": {
+          "auc": 0.6215926847618496,
+          "brier": 0.17556490004062653,
+          "log_loss": 0.5333245992660522,
+          "recovery_mae": 1.6576080454074271
+        }
+      },
+      {
+        "turn": 22,
+        "hospital": "H003",
+        "metrics": {
+          "auc": 0.6102008520998174,
+          "brier": 0.1675495207309723,
+          "log_loss": 0.5157625079154968,
+          "recovery_mae": 1.6335867624213225
+        }
+      },
+      {
+        "turn": 23,
+        "hospital": "H001",
+        "metrics": {
+          "auc": 0.6568774051676747,
+          "brier": 0.17244909703731537,
+          "log_loss": 0.5254390835762024,
+          "recovery_mae": 1.6578933458801703
+        }
+      },
+      {
+        "turn": 24,
+        "hospital": "H007",
+        "metrics": {
+          "auc": 0.6250926295388474,
+          "brier": 0.17530204355716705,
+          "log_loss": 0.5330103635787964,
+          "recovery_mae": 1.6319556596350069
+        }
+      },
+      {
+        "turn": 25,
+        "hospital": "H005",
+        "metrics": {
+          "auc": 0.5510737009544008,
+          "brier": 0.19164101779460907,
+          "log_loss": 0.5724664926528931,
+          "recovery_mae": 1.4800764597379243
+        }
+      },
+      {
+        "turn": 26,
+        "hospital": "H008",
+        "metrics": {
+          "auc": 0.6504892367906067,
+          "brier": 0.17526490986347198,
+          "log_loss": 0.5331316590309143,
+          "recovery_mae": 1.6337657829408976
+        }
+      },
+      {
+        "turn": 27,
+        "hospital": "H006",
+        "metrics": {
+          "auc": 0.6725322378180989,
+          "brier": 0.1808297038078308,
+          "log_loss": 0.5443267822265625,
+          "recovery_mae": 1.5930231385311837
+        }
+      },
+      {
+        "turn": 28,
+        "hospital": "H009",
+        "metrics": {
+          "auc": 0.6391056004458067,
+          "brier": 0.17495132982730865,
+          "log_loss": 0.5319191217422485,
+          "recovery_mae": 1.6222708449715573
+        }
+      },
+      {
+        "turn": 29,
+        "hospital": "H010",
+        "metrics": {
+          "auc": 0.5918706230597068,
+          "brier": 0.18490976095199585,
+          "log_loss": 0.5564538836479187,
+          "recovery_mae": 1.5018908356967038
+        }
+      },
+      {
+        "turn": 30,
+        "hospital": "H002",
+        "metrics": {
+          "auc": 0.6153662509830357,
+          "brier": 0.19898423552513123,
+          "log_loss": 0.5872637629508972,
+          "recovery_mae": 1.5637372622310912
+        }
+      },
+      {
+        "turn": 31,
+        "hospital": "H004",
+        "metrics": {
+          "auc": 0.6293043578910817,
+          "brier": 0.1753491908311844,
+          "log_loss": 0.5324084758758545,
+          "recovery_mae": 1.5822465408139113
+        }
+      },
+      {
+        "turn": 32,
+        "hospital": "H003",
+        "metrics": {
+          "auc": 0.6150334753499695,
+          "brier": 0.16734319925308228,
+          "log_loss": 0.5150893330574036,
+          "recovery_mae": 1.5848470388537776
+        }
+      },
+      {
+        "turn": 33,
+        "hospital": "H001",
+        "metrics": {
+          "auc": 0.6575371083012644,
+          "brier": 0.17212224006652832,
+          "log_loss": 0.5246543288230896,
+          "recovery_mae": 1.5892487681503837
+        }
+      },
+      {
+        "turn": 34,
+        "hospital": "H007",
+        "metrics": {
+          "auc": 0.6340990708544718,
+          "brier": 0.17443226277828217,
+          "log_loss": 0.5307983756065369,
+          "recovery_mae": 1.5869113498748848
+        }
+      },
+      {
+        "turn": 35,
+        "hospital": "H005",
+        "metrics": {
+          "auc": 0.5486214209968187,
+          "brier": 0.19236117601394653,
+          "log_loss": 0.5745273232460022,
+          "recovery_mae": 1.4451855230025756
+        }
+      },
+      {
+        "turn": 36,
+        "hospital": "H008",
+        "metrics": {
+          "auc": 0.6537073276799304,
+          "brier": 0.17458823323249817,
+          "log_loss": 0.5314013361930847,
+          "recovery_mae": 1.5829446136101686
+        }
+      },
+      {
+        "turn": 37,
+        "hospital": "H006",
+        "metrics": {
+          "auc": 0.6693826315188862,
+          "brier": 0.18119323253631592,
+          "log_loss": 0.5452070832252502,
+          "recovery_mae": 1.5392231001692303
+        }
+      },
+      {
+        "turn": 38,
+        "hospital": "H009",
+        "metrics": {
+          "auc": 0.6364934522151017,
+          "brier": 0.1753804087638855,
+          "log_loss": 0.5329254865646362,
+          "recovery_mae": 1.5789017058510817
+        }
+      },
+      {
+        "turn": 39,
+        "hospital": "H010",
+        "metrics": {
+          "auc": 0.5922316078261497,
+          "brier": 0.18499131500720978,
+          "log_loss": 0.5566278696060181,
+          "recovery_mae": 1.4689597720606324
+        }
+      },
+      {
+        "turn": 40,
+        "hospital": "H002",
+        "metrics": {
+          "auc": 0.6153662509830357,
+          "brier": 0.19898423552513123,
+          "log_loss": 0.5872637629508972,
+          "recovery_mae": 1.540140928261923
+        }
+      },
+      {
+        "turn": 41,
+        "hospital": "H004",
+        "metrics": {
+          "auc": 0.6293043578910817,
+          "brier": 0.1753491908311844,
+          "log_loss": 0.5324084758758545,
+          "recovery_mae": 1.5604017939994006
+        }
+      },
+      {
+        "turn": 42,
+        "hospital": "H003",
+        "metrics": {
+          "auc": 0.6150334753499695,
+          "brier": 0.16734319925308228,
+          "log_loss": 0.5150893330574036,
+          "recovery_mae": 1.571021166335057
+        }
+      },
+      {
+        "turn": 43,
+        "hospital": "H001",
+        "metrics": {
+          "auc": 0.6575371083012644,
+          "brier": 0.17212224006652832,
+          "log_loss": 0.5246543288230896,
+          "recovery_mae": 1.5642647445624602
+        }
+      },
+      {
+        "turn": 44,
+        "hospital": "H007",
+        "metrics": {
+          "auc": 0.6340990708544718,
+          "brier": 0.17443226277828217,
+          "log_loss": 0.5307983756065369,
+          "recovery_mae": 1.5782703545873715
+        }
+      },
+      {
+        "turn": 45,
+        "hospital": "H005",
+        "metrics": {
+          "auc": 0.5486214209968187,
+          "brier": 0.19236117601394653,
+          "log_loss": 0.5745273232460022,
+          "recovery_mae": 1.425102738233713
+        }
+      },
+      {
+        "turn": 46,
+        "hospital": "H008",
+        "metrics": {
+          "auc": 0.6537073276799304,
+          "brier": 0.17458823323249817,
+          "log_loss": 0.5314013361930847,
+          "recovery_mae": 1.5641723465773822
+        }
+      },
+      {
+        "turn": 47,
+        "hospital": "H006",
+        "metrics": {
+          "auc": 0.6693826315188862,
+          "brier": 0.18119323253631592,
+          "log_loss": 0.5452070832252502,
+          "recovery_mae": 1.5165549708625017
+        }
+      },
+      {
+        "turn": 48,
+        "hospital": "H009",
+        "metrics": {
+          "auc": 0.6364934522151017,
+          "brier": 0.1753804087638855,
+          "log_loss": 0.5329254865646362,
+          "recovery_mae": 1.5665374602980287
+        }
+      },
+      {
+        "turn": 49,
+        "hospital": "H010",
+        "metrics": {
+          "auc": 0.5922316078261497,
+          "brier": 0.18499131500720978,
+          "log_loss": 0.5566278696060181,
+          "recovery_mae": 1.4586538375784817
+        }
+      },
+      {
+        "turn": 50,
+        "hospital": "H002",
+        "metrics": {
+          "auc": 0.6153662509830357,
+          "brier": 0.19898423552513123,
+          "log_loss": 0.5872637629508972,
+          "recovery_mae": 1.528508075675053
+        }
+      },
+      {
+        "turn": 51,
+        "hospital": "H004",
+        "metrics": {
+          "auc": 0.6293043578910817,
+          "brier": 0.1753491908311844,
+          "log_loss": 0.5324084758758545,
+          "recovery_mae": 1.5452279245950342
+        }
+      },
+      {
+        "turn": 52,
+        "hospital": "H003",
+        "metrics": {
+          "auc": 0.6150334753499695,
+          "brier": 0.16734319925308228,
+          "log_loss": 0.5150893330574036,
+          "recovery_mae": 1.566930474330039
+        }
+      },
+      {
+        "turn": 53,
+        "hospital": "H001",
+        "metrics": {
+          "auc": 0.6575371083012644,
+          "brier": 0.17212224006652832,
+          "log_loss": 0.5246543288230896,
+          "recovery_mae": 1.5513628641764323
+        }
+      },
+      {
+        "turn": 54,
+        "hospital": "H007",
+        "metrics": {
+          "auc": 0.6340990708544718,
+          "brier": 0.17443226277828217,
+          "log_loss": 0.5307983756065369,
+          "recovery_mae": 1.5735761819224063
+        }
+      },
+      {
+        "turn": 55,
+        "hospital": "H005",
+        "metrics": {
+          "auc": 0.5486214209968187,
+          "brier": 0.19236117601394653,
+          "log_loss": 0.5745273232460022,
+          "recovery_mae": 1.4133678873380024
+        }
+      },
+      {
+        "turn": 56,
+        "hospital": "H008",
+        "metrics": {
+          "auc": 0.6537073276799304,
+          "brier": 0.17458823323249817,
+          "log_loss": 0.5314013361930847,
+          "recovery_mae": 1.5476273256989457
+        }
+      },
+      {
+        "turn": 57,
+        "hospital": "H006",
+        "metrics": {
+          "auc": 0.6693826315188862,
+          "brier": 0.18119323253631592,
+          "log_loss": 0.5452070832252502,
+          "recovery_mae": 1.510942975343284
+        }
+      },
+      {
+        "turn": 58,
+        "hospital": "H009",
+        "metrics": {
+          "auc": 0.6364934522151017,
+          "brier": 0.1753804087638855,
+          "log_loss": 0.5329254865646362,
+          "recovery_mae": 1.560599465406578
+        }
+      },
+      {
+        "turn": 59,
+        "hospital": "H010",
+        "metrics": {
+          "auc": 0.5922316078261497,
+          "brier": 0.18499131500720978,
+          "log_loss": 0.5566278696060181,
+          "recovery_mae": 1.4496715689358646
+        }
+      },
+      {
+        "turn": 60,
+        "hospital": "H002",
+        "metrics": {
+          "auc": 0.6153662509830357,
+          "brier": 0.19898423552513123,
+          "log_loss": 0.5872637629508972,
+          "recovery_mae": 1.5234478480173053
+        }
+      },
+      {
+        "turn": 61,
+        "hospital": "H004",
+        "metrics": {
+          "auc": 0.6293043578910817,
+          "brier": 0.1753491908311844,
+          "log_loss": 0.5324084758758545,
+          "recovery_mae": 1.5425871011687489
+        }
+      },
+      {
+        "turn": 62,
+        "hospital": "H003",
+        "metrics": {
+          "auc": 0.6150334753499695,
+          "brier": 0.16734319925308228,
+          "log_loss": 0.5150893330574036,
+          "recovery_mae": 1.5666694077262042
+        }
+      },
+      {
+        "turn": 63,
+        "hospital": "H001",
+        "metrics": {
+          "auc": 0.6575371083012644,
+          "brier": 0.17212224006652832,
+          "log_loss": 0.5246543288230896,
+          "recovery_mae": 1.548457423000471
+        }
+      },
+      {
+        "turn": 64,
+        "hospital": "H007",
+        "metrics": {
+          "auc": 0.6340990708544718,
+          "brier": 0.17443226277828217,
+          "log_loss": 0.5307983756065369,
+          "recovery_mae": 1.5742280030414224
+        }
+      },
+      {
+        "turn": 65,
+        "hospital": "H005",
+        "metrics": {
+          "auc": 0.5486214209968187,
+          "brier": 0.19236117601394653,
+          "log_loss": 0.5745273232460022,
+          "recovery_mae": 1.4085409205693464
+        }
+      },
+      {
+        "turn": 66,
+        "hospital": "H008",
+        "metrics": {
+          "auc": 0.6537073276799304,
+          "brier": 0.17458823323249817,
+          "log_loss": 0.5314013361930847,
+          "recovery_mae": 1.5329203304593773
+        }
+      },
+      {
+        "turn": 67,
+        "hospital": "H006",
+        "metrics": {
+          "auc": 0.6693826315188862,
+          "brier": 0.18119323253631592,
+          "log_loss": 0.5452070832252502,
+          "recovery_mae": 1.5089446437560905
+        }
+      },
+      {
+        "turn": 68,
+        "hospital": "H009",
+        "metrics": {
+          "auc": 0.6364934522151017,
+          "brier": 0.1753804087638855,
+          "log_loss": 0.5329254865646362,
+          "recovery_mae": 1.5575537378248063
+        }
+      },
+      {
+        "turn": 69,
+        "hospital": "H010",
+        "metrics": {
+          "auc": 0.5922316078261497,
+          "brier": 0.18499131500720978,
+          "log_loss": 0.5566278696060181,
+          "recovery_mae": 1.4444746390506737
+        }
+      },
+      {
+        "turn": 70,
+        "hospital": "H002",
+        "metrics": {
+          "auc": 0.6153662509830357,
+          "brier": 0.19898423552513123,
+          "log_loss": 0.5872637629508972,
+          "recovery_mae": 1.5176290448615168
+        }
+      },
+      {
+        "turn": 71,
+        "hospital": "H004",
+        "metrics": {
+          "auc": 0.6293043578910817,
+          "brier": 0.1753491908311844,
+          "log_loss": 0.5324084758758545,
+          "recovery_mae": 1.542913424484129
+        }
+      },
+      {
+        "turn": 72,
+        "hospital": "H003",
+        "metrics": {
+          "auc": 0.6150334753499695,
+          "brier": 0.16734319925308228,
+          "log_loss": 0.5150893330574036,
+          "recovery_mae": 1.5621848398751585
+        }
+      },
+      {
+        "turn": 73,
+        "hospital": "H001",
+        "metrics": {
+          "auc": 0.6575371083012644,
+          "brier": 0.17212224006652832,
+          "log_loss": 0.5246543288230896,
+          "recovery_mae": 1.5472437364835265
+        }
+      },
+      {
+        "turn": 74,
+        "hospital": "H007",
+        "metrics": {
+          "auc": 0.6340990708544718,
+          "brier": 0.17443226277828217,
+          "log_loss": 0.5307983756065369,
+          "recovery_mae": 1.5737619585521707
+        }
+      },
+      {
+        "turn": 75,
+        "hospital": "H005",
+        "metrics": {
+          "auc": 0.5486214209968187,
+          "brier": 0.19236117601394653,
+          "log_loss": 0.5745273232460022,
+          "recovery_mae": 1.4090160949107928
+        }
+      },
+      {
+        "turn": 76,
+        "hospital": "H008",
+        "metrics": {
+          "auc": 0.6537073276799304,
+          "brier": 0.17458823323249817,
+          "log_loss": 0.5314013361930847,
+          "recovery_mae": 1.5240748797803207
+        }
+      },
+      {
+        "turn": 77,
+        "hospital": "H006",
+        "metrics": {
+          "auc": 0.6693826315188862,
+          "brier": 0.18119323253631592,
+          "log_loss": 0.5452070832252502,
+          "recovery_mae": 1.5141563890344005
+        }
+      },
+      {
+        "turn": 78,
+        "hospital": "H009",
+        "metrics": {
+          "auc": 0.6364934522151017,
+          "brier": 0.1753804087638855,
+          "log_loss": 0.5329254865646362,
+          "recovery_mae": 1.557052049321376
+        }
+      },
+      {
+        "turn": 79,
+        "hospital": "H010",
+        "metrics": {
+          "auc": 0.5922316078261497,
+          "brier": 0.18499131500720978,
+          "log_loss": 0.5566278696060181,
+          "recovery_mae": 1.443054859678132
+        }
+      },
+      {
+        "turn": 80,
+        "hospital": "H002",
+        "metrics": {
+          "auc": 0.6153662509830357,
+          "brier": 0.19898423552513123,
+          "log_loss": 0.5872637629508972,
+          "recovery_mae": 1.5150595996973863
+        }
+      }
+    ]
+  }
+}
