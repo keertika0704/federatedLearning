@@ -47,32 +47,26 @@ function confidencePercent(probability) {
   return Math.min(99, Math.round(probability * 100));
 }
 
-const RING = 2 * Math.PI * 34;
-
-// Diagnosis: confidence ring + a bar for each of the top predictions (no text paragraphs).
+// Diagnosis: a ranked table of the top predictions with the model's confidence in each.
 function renderDiseaseCard(container, prediction, alternatives = []) {
   const name = id => diseaseNames[id] || `Disease ${id}`;
-  const pct = confidencePercent(prediction.probability);
-  const others = alternatives.filter(item => confidencePercent(item.probability) > 0);
+  const rows = [prediction, ...alternatives.filter(item => confidencePercent(item.probability) > 0)];
   container.innerHTML = `
-    <div class="diagnosis-visual">
-      <div class="ring" role="img" aria-label="${pct}% confidence">
-        <svg viewBox="0 0 80 80"><circle class="ring-track" cx="40" cy="40" r="34"/><circle class="ring-value" cx="40" cy="40" r="34" stroke-dasharray="${(RING * pct / 100).toFixed(1)} ${RING.toFixed(1)}"/></svg>
-        <strong>${pct}<small>%</small></strong>
-      </div>
-      <div class="diagnosis-main">
-        <span class="diagnosis-label">MOST LIKELY</span>
-        <span class="diagnosis-name">${name(prediction.disease_id)}</span>
-        ${others.length ? `<div class="alt-bars">${others.map(item => `
-          <div class="alt-row"><span>${name(item.disease_id)}</span><div class="alt-track"><div class="alt-fill" style="width:${confidencePercent(item.probability)}%"></div></div><small>${confidencePercent(item.probability)}%</small></div>`).join("")}</div>` : ""}
-      </div>
-    </div>`;
+    <h2 class="section-title">Predicted disease</h2>
+    <div class="table-scroll"><table class="data-table dx-table">
+      <thead><tr><th scope="col" class="col-rank">Rank</th><th scope="col">Disease</th><th scope="col" class="col-bar">Confidence</th></tr></thead>
+      <tbody>${rows.map((item, i) => {
+        const pct = confidencePercent(item.probability);
+        return `<tr${i === 0 ? ' class="top"' : ""}><td>${i + 1}</td><th scope="row">${name(item.disease_id)}${i === 0 ? ' <small>Most likely</small>' : ""}</th>
+          <td><span class="bar-cell"><span class="bar" aria-hidden="true"><i style="width:${pct}%"></i></span><span class="bar-value">${pct}%</span></span></td></tr>`;
+      }).join("")}</tbody>
+    </table></div>`;
 }
 
 function setLoading(loading) {
   const button = document.querySelector("#diagnose-button");
   button.disabled = loading;
-  button.querySelector("span:first-child").textContent = loading ? "Assessing patient…" : "Diagnose patient";
+  button.querySelector("span:first-child").textContent = loading ? "Running prediction…" : "Run prediction";
 }
 
 function ensureSession() {
@@ -186,14 +180,14 @@ function escapeHtml(text) {
 
 const vitalLabels = { temperature: "Temperature", heart_rate: "Heart rate", respiratory_rate: "Resp. rate", spo2: "SpO₂", systolic_bp: "Systolic BP", diastolic_bp: "Diastolic BP" };
 
-// Turns the API's reason sentences into short chips. Only unexpected symptoms and unusual vitals are kept.
+// Turns the API's reason sentences into short findings. Only unexpected symptoms and unusual vitals are kept.
 function atypicalChips(reasons) {
   const chips = [];
   for (const reason of reasons || []) {
     let m = reason.match(/^unexpected symptom: (.+?) \(seen/);
-    if (m) { chips.push({ text: m[1], icon: "+" }); continue; }
+    if (m) { chips.push({ text: m[1], kind: "Unexpected symptom" }); continue; }
     m = reason.match(/^unusual (\w+): ([\d.]+) \(typical ([\d.]+)/);
-    if (m) chips.push({ text: `${vitalLabels[m[1]] || m[1]} ${m[2]}`, icon: Number(m[2]) > Number(m[3]) ? "↑" : "↓" });
+    if (m) chips.push({ text: `${vitalLabels[m[1]] || m[1]} ${m[2]}`, kind: Number(m[2]) > Number(m[3]) ? "Above typical range" : "Below typical range" });
   }
   return chips;
 }
@@ -205,10 +199,12 @@ function renderAtypicalCard(container, atypical) {
     container.innerHTML = "";
     return;
   }
-  container.innerHTML = `<div class="atypical-card">
-    <span class="atypical-badge"><b>!</b> Atypical</span>
-    ${atypical.novelty_flag ? '<span class="atypical-badge novel">New-disease signal</span>' : ""}
-    <div class="atypical-chips">${chips.slice(0, 6).map(c => `<span class="atypical-chip"><i>${c.icon}</i>${escapeHtml(c.text)}</span>`).join("")}</div>
+  container.innerHTML = `<div class="notice">
+    <h2 class="section-title">Atypical findings${atypical.novelty_flag ? ' <span class="flag-text">New-disease signal</span>' : ""}</h2>
+    <table class="data-table">
+      <thead><tr><th scope="col">Finding</th><th scope="col">Why it is flagged</th></tr></thead>
+      <tbody>${chips.slice(0, 6).map(c => `<tr><th scope="row">${escapeHtml(c.text)}</th><td>${c.kind}</td></tr>`).join("")}</tbody>
+    </table>
   </div>`;
 }
 
@@ -274,42 +270,37 @@ function renderResults(recommendation) {
   renderAtypicalCard(document.querySelector("#result-atypical"), patient.atypical);
 
   const treatments = recommendation.treatments || [];
-  const maxDays = Math.max(1, ...treatments.map(t => Number(t.expected_recovery_days) || 0));
-  document.querySelector("#treatment-list").innerHTML = treatments.length ? treatments.map(treatment => {
-    const success = confidencePercent(treatment.success_probability);
-    const days = Number(treatment.expected_recovery_days);
-    return `
-    <article class="treatment-card${treatment.rank === 1 ? " top" : ""}">
-      <span class="treatment-rank">${treatment.rank}</span>
-      <div class="treatment-body">
-        <div class="treatment-head"><h3 class="treatment-name">${escapeHtml(treatment.treatment_name)}</h3>
-          ${treatment.first_line ? '<span class="treatment-tag first-line">★ First line</span>' : ""}
-          ${treatment.inpatient_required ? '<span class="treatment-tag">Inpatient</span>' : ""}</div>
-        <div class="meter"><span class="meter-label">Success</span><div class="meter-track"><div class="meter-fill success" style="width:${success}%"></div></div><strong>${success}%</strong></div>
-        <div class="meter"><span class="meter-label">Recovery</span><div class="meter-track"><div class="meter-fill days" style="width:${Math.max(6, days / maxDays * 100)}%"></div></div><strong>${days} d</strong></div>
-      </div>
-    </article>`;
-  }).join("") : `<div class="no-recommendations">${escapeHtml(recommendation.message || "No treatment options for this disease and severity.")}</div>`;
+  document.querySelector("#treatment-list").innerHTML = treatments.length ? `
+    <div class="table-scroll"><table class="data-table treatment-table">
+      <thead><tr><th scope="col" class="col-rank">Rank</th><th scope="col">Treatment</th><th scope="col">Notes</th><th scope="col" class="col-bar">Success rate</th><th scope="col" class="num">Recovery</th></tr></thead>
+      <tbody>${treatments.map(treatment => {
+        const success = confidencePercent(treatment.success_probability);
+        const notes = [treatment.first_line ? "First line" : "", treatment.inpatient_required ? "Inpatient" : ""].filter(Boolean).join(", ");
+        return `<tr${treatment.rank === 1 ? ' class="top"' : ""}><td>${treatment.rank}</td><th scope="row">${escapeHtml(treatment.treatment_name)}</th><td>${notes || "None"}</td>
+          <td><span class="bar-cell"><span class="bar" aria-hidden="true"><i style="width:${success}%"></i></span><span class="bar-value">${success}%</span></span></td>
+          <td class="num">${Number(treatment.expected_recovery_days)} days</td></tr>`;
+      }).join("")}</tbody>
+    </table></div>` : `<p class="empty-state">${escapeHtml(recommendation.message || "No treatment options for this disease and severity.")}</p>`;
 
-  // vitals as gauges: [label, key, unit, scale min, scale max, normal low, normal high]
-  const gauges = [
-    ["Temperature", "temperature", "°C", 35, 41, 36.1, 37.8], ["Heart rate", "heart_rate", "bpm", 40, 160, 60, 100],
-    ["Resp. rate", "respiratory_rate", "/min", 8, 40, 12, 20], ["SpO₂", "spo2", "%", 80, 100, 95, 100],
-    ["Systolic BP", "systolic_bp", "mmHg", 70, 200, 90, 120], ["Diastolic BP", "diastolic_bp", "mmHg", 40, 120, 60, 80],
+  // vitals as a table: [label, key, unit, normal low, normal high]
+  const vitals = [
+    ["Temperature", "temperature", "°C", 36.1, 37.8], ["Heart rate", "heart_rate", "bpm", 60, 100],
+    ["Resp. rate", "respiratory_rate", "/min", 12, 20], ["SpO₂", "spo2", "%", 95, 100],
+    ["Systolic BP", "systolic_bp", "mmHg", 90, 120], ["Diastolic BP", "diastolic_bp", "mmHg", 60, 80],
   ];
-  const pos = (v, lo, hi) => Math.min(100, Math.max(0, (v - lo) / (hi - lo) * 100));
-  document.querySelector("#snapshot-vitals").innerHTML = gauges.map(([label, key, unit, min, max, lo, hi]) => {
-    const v = patient.vitals[key];
-    const known = v !== null && v !== undefined;
-    const out = known && (v < lo || v > hi);
-    return `<div class="gauge${known ? "" : " unknown"}${out ? " out" : ""}">
-      <div class="gauge-top"><span>${label}</span><strong>${known ? `${v}<small> ${unit}</small>` : "—"}</strong></div>
-      <div class="gauge-track"><div class="gauge-normal" style="left:${pos(lo, min, max)}%;width:${pos(hi, min, max) - pos(lo, min, max)}%"></div>${known ? `<div class="gauge-dot" style="left:${pos(v, min, max)}%"></div>` : ""}</div>
-    </div>`;
-  }).join("");
+  document.querySelector("#snapshot-vitals").innerHTML = `<table class="data-table vitals-table">
+    <thead><tr><th scope="col">Measure</th><th scope="col" class="num">Value</th><th scope="col" class="num">Normal</th></tr></thead>
+    <tbody>${vitals.map(([label, key, unit, lo, hi]) => {
+      const v = patient.vitals[key];
+      const known = v !== null && v !== undefined;
+      const out = known && (v < lo || v > hi);
+      return `<tr${out ? ' class="out"' : ""}><th scope="row">${label}</th>
+        <td class="num">${known ? `${v} ${unit}${out ? ` <small>${v < lo ? "low" : "high"}</small>` : ""}` : "Not recorded"}</td>
+        <td class="num">${lo} to ${hi}</td></tr>`;
+    }).join("")}</tbody></table>`;
   document.querySelector("#snapshot-symptoms").innerHTML = patient.symptoms.length
-    ? patient.symptoms.map(name => `<span class="symptom-chip">${name}</span>`).join("")
-    : '<span class="symptom-chip">None selected</span>';
+    ? `<ul class="plain-list">${patient.symptoms.map(name => `<li>${name}</li>`).join("")}</ul>`
+    : '<p class="muted-line">None selected</p>';
 }
 
 function showIntake() {

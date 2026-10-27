@@ -61,6 +61,7 @@
     activeTab = tab;
     document.querySelectorAll(".topnav-tab").forEach(button => {
       const active = button.dataset.tab === tab;
+      if (active) $("#crumb").textContent = button.dataset.title;
       button.classList.toggle("active", active);
       if (active) button.setAttribute("aria-current", "page"); else button.removeAttribute("aria-current");
     });
@@ -71,36 +72,39 @@
   const SEVERITY_LABEL = { watch: "Watch", warning: "Warning", critical: "Critical" };
   const STATUS_LABEL = { open: "Open", acknowledged: "Acknowledged", resolved: "Resolved" };
 
-  function alertCard(a) {
-    const sites = a.sites.map(s => `<span class="site-chip" title="p = ${s.p_value}">${escapeHtml(s.hospital_name)} <small>${escapeHtml(s.region)}</small><b>${s.recent_count}</b><small>vs ~${s.expected}</small></span>`).join("");
-    const symptoms = a.signature.map(s => `<span class="atypical-chip"><i>+</i>${escapeHtml(s.symptom)}</span>`).join("");
-    const novel = a.kind === "possible_novel";
-    return `<article class="alert-card sev-${a.severity}${a.status === "resolved" ? " is-resolved" : ""}" data-id="${a.id}">
-      <div class="alert-head">
-        <span class="sev-pill sev-${a.severity}">${SEVERITY_LABEL[a.severity] || a.severity}</span>
-        ${novel ? '<span class="atypical-badge novel">New-disease signal</span>' : ""}
-        <span class="alert-scope">${a.scope === "multi-region" ? "Multi-region" : "Regional"}</span>
-        <span class="alert-status st-${a.status}">${STATUS_LABEL[a.status] || a.status}</span>
-      </div>
-      <h3 class="alert-title">${escapeHtml(a.title)}</h3>
-      <div class="alert-sites">${sites}</div>
-      ${symptoms ? `<div class="alert-symptoms"><span class="alert-label">Excess symptoms</span>${symptoms}</div>` : ""}
-      <div class="alert-foot">
-        <span>Sites agree ${Math.round(a.similarity * 100)}% · first seen ${escapeHtml(a.first_seen)} · latest ${escapeHtml(a.last_seen)}</span>
-        ${a.status === "open" ? `<button class="ack-button" type="button" data-ack="${a.id}">Acknowledge</button>` : ""}
-      </div>
-    </article>`;
+  const sevCell = a => `<span class="sev sev-${a.severity}">${SEVERITY_LABEL[a.severity] || a.severity}</span>`;
+  const siteList = a => `<ul class="site-list">${a.sites.map(s => `<li title="p = ${s.p_value}">${escapeHtml(s.hospital_name)}, ${escapeHtml(s.region)}: <b>${s.recent_count}</b> vs about ${s.expected}</li>`).join("")}</ul>`;
+  const titleCell = (a, extra = "") => `<strong>${escapeHtml(a.title)}</strong>
+    ${a.kind === "possible_novel" ? '<span class="sub-line flag-text">New-disease signal</span>' : ""}
+    <span class="sub-line">${a.scope === "multi-region" ? "Multi-region" : "Regional"}${extra}</span>
+    ${a.signature.length ? `<span class="sub-line">Excess symptoms: ${a.signature.map(s => escapeHtml(s.symptom)).join(", ")}</span>` : ""}`;
+
+  function alertRow(a) {
+    return `<tr data-id="${a.id}">
+      <td>${sevCell(a)}</td>
+      <td>${titleCell(a, `, sites agree ${Math.round(a.similarity * 100)}%`)}</td>
+      <td>${siteList(a)}</td>
+      <td>${escapeHtml(a.first_seen)}<span class="sub-line">latest ${escapeHtml(a.last_seen)}</span></td>
+      <td><span class="status st-${a.status}">${STATUS_LABEL[a.status] || a.status}</span></td>
+      <td class="num">${a.status === "open" ? `<button class="ack-button" type="button" data-ack="${a.id}">Acknowledge</button>` : ""}</td>
+    </tr>`;
   }
+
+  const alertsTable = list => `<div class="table-scroll"><table class="data-table alert-table">
+    <thead><tr><th scope="col">Severity</th><th scope="col">Alert</th><th scope="col">Hospitals: recent vs expected cases</th><th scope="col">First seen</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>
+    <tbody>${list.map(alertRow).join("")}</tbody></table></div>`;
 
   async function refreshAlerts() {
     try {
-      const { alerts } = await api("/alerts");
-      const rank = { open: 0, acknowledged: 1, resolved: 2 };
-      alerts.sort((x, y) => rank[x.status] - rank[y.status]);
-      $("#alert-list").innerHTML = alerts.length
-        ? alerts.map(alertCard).join("")
-        : '<p class="empty-state">No alerts yet. Choose a day and run a scan.</p>';
-      updateBadge(alerts.filter(a => a.status === "open").length);
+      const { alerts } = await api("/alerts?limit=500");
+      const active = alerts.filter(a => a.status !== "resolved");
+      active.sort((x, y) => (x.status === "open" ? 0 : 1) - (y.status === "open" ? 0 : 1));
+      $("#alert-list").innerHTML = active.length
+        ? alertsTable(active)
+        : '<p class="empty-state">No active alerts. Choose a day and run a scan, or see Past outbreaks for what has been dealt with.</p>';
+      updateBadge(active.filter(a => a.status === "open").length);
+      pastOutbreaks = alerts.filter(a => a.status === "resolved");
+      renderHistory();
     } catch (error) {
       showError(error.message);
     }
@@ -125,6 +129,92 @@
     }
   }
 
+  // ---------------------------------------------------------------- past outbreaks
+  let pastOutbreaks = [];
+  const DAY_MS = 86400000;
+  const utc = day => Date.parse(day + "T00:00:00Z");
+  const fmtDay = (ms, year) => new Date(ms).toLocaleDateString("en-GB", { day: "numeric", month: "short", ...(year ? { year: "numeric" } : {}), timeZone: "UTC" });
+  const spanDays = a => Math.round((utc(a.last_seen) - utc(a.first_seen)) / DAY_MS) + 1;
+  const fmtSpan = a => {
+    const days = spanDays(a);
+    return `${a.first_seen === a.last_seen ? fmtDay(utc(a.first_seen), true) : `${fmtDay(utc(a.first_seen))} to ${fmtDay(utc(a.last_seen), true)}`}, ${days} day${days === 1 ? "" : "s"}`;
+  };
+
+  function historyRow(a) {
+    return `<tr>
+      <td>${sevCell(a)}</td>
+      <td>${titleCell(a)}</td>
+      <td>${siteList(a)}</td>
+      <td>${fmtSpan(a)}</td>
+      <td>No new signal for ${detectorResolveDays} days after <span class="nowrap">${escapeHtml(a.last_seen)}</span></td>
+    </tr>`;
+  }
+
+  const historyTable = list => `<div class="table-scroll"><table class="data-table alert-table">
+    <thead><tr><th scope="col">Severity</th><th scope="col">Outbreak</th><th scope="col">Hospitals: recent vs expected cases</th><th scope="col">Period</th><th scope="col">Resolution</th></tr></thead>
+    <tbody>${list.map(historyRow).join("")}</tbody></table></div>`;
+
+  let detectorResolveDays = 14;
+
+  function renderTimeline(list) {
+    if (!list.length) { $("#history-timeline").innerHTML = ""; return; }
+    const first = new Date(Math.min(...list.map(a => utc(a.first_seen))));
+    const last = new Date(Math.max(...list.map(a => utc(a.last_seen))));
+    const start = Date.UTC(first.getUTCFullYear(), first.getUTCMonth(), 1);
+    const end = Date.UTC(last.getUTCFullYear(), last.getUTCMonth() + 1, 1);
+    const pct = ms => (100 * (ms - start)) / (end - start);
+    const months = [];
+    for (let m = new Date(start); m.getTime() < end; m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))) {
+      const label = m.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" });
+      months.push(`<span class="tl-month" style="left:${pct(m.getTime())}%">${label}${m.getUTCMonth() === 0 || months.length === 0 ? ` ${m.getUTCFullYear()}` : ""}</span>`);
+    }
+    const names = [...new Set(list.map(a => a.disease_name))];
+    const rows = names.map(name => {
+      const bars = list.filter(a => a.disease_name === name).map(a => {
+        const left = pct(utc(a.first_seen)), width = Math.max(pct(utc(a.last_seen) + DAY_MS) - left, 0.8);
+        return `<i class="tl-bar sev-${a.severity}" style="left:${left}%;width:${width}%" title="${escapeHtml(`${a.title} (${fmtSpan(a)})`)}"></i>`;
+      }).join("");
+      return `<div class="tl-row"><span class="tl-name">${escapeHtml(name)}</span><div class="tl-track">${bars}</div></div>`;
+    }).join("");
+    $("#history-timeline").innerHTML = `<div class="tl-row tl-axis"><span class="tl-name"></span><div class="tl-track">${months.join("")}</div></div>${rows}`;
+  }
+
+  function renderHistory() {
+    const select = $("#history-disease");
+    const names = [...new Set(pastOutbreaks.map(a => a.disease_name))].sort();
+    if ([...select.options].slice(1).map(o => o.value).join("|") !== names.join("|")) {
+      const chosen = select.value;
+      select.innerHTML = '<option value="">All diseases</option>' + names.map(n => `<option>${escapeHtml(n)}</option>`).join("");
+      select.value = names.includes(chosen) ? chosen : "";
+    }
+    const count = $("#history-count");
+    count.textContent = pastOutbreaks.length;
+    count.classList.toggle("hidden", pastOutbreaks.length === 0);
+
+    const list = pastOutbreaks.filter(a => !select.value || a.disease_name === select.value)
+      .sort((x, y) => (y.first_seen > x.first_seen) - (y.first_seen < x.first_seen));
+    const critical = list.filter(a => a.severity === "critical").length;
+    const days = list.reduce((sum, a) => sum + spanDays(a), 0);
+    $("#history-summary").textContent = list.length
+      ? `${list.length} past outbreak${list.length === 1 ? "" : "s"} dealt with, ${critical} critical, ${days} days with an active signal in total.`
+      : "";
+    renderTimeline([...list].reverse());
+    $("#history-list").innerHTML = list.length
+      ? historyTable(list)
+      : '<p class="empty-state">No past outbreaks yet. An alert moves here once it has had no new signal for two weeks.</p>';
+  }
+
+  function showSubtab(name) {
+    document.querySelectorAll(".surv-subtab").forEach(b => {
+      const on = b.dataset.subtab === name;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", on);
+    });
+    $("#surv-live").classList.toggle("hidden", name !== "live");
+    $("#surv-history").classList.toggle("hidden", name !== "history");
+    if (name === "history") refreshAlerts();
+  }
+
   // ---------------------------------------------------------------- hospital x disease grid
   function level(cell) {
     if (cell.signal) return 2;
@@ -132,7 +222,7 @@
   }
 
   function renderTrends(data) {
-    $("#trend-day").textContent = `· week ending ${data.day}`;
+    $("#trend-day").textContent = `week ending ${data.day}`;
     const head = `<thead><tr><th scope="col">Hospital</th>${data.diseases.map(d => `<th scope="col">${escapeHtml(d.disease_name)}</th>`).join("")}<th scope="col" title="Share of cases flagged atypical by objective A">Atypical</th></tr></thead>`;
     const rows = data.hospitals.map(h => {
       const cells = data.diseases.map(d => {
@@ -193,6 +283,7 @@
     try {
       const health = await api("/health");
       const { from, to, hospitals } = health.summaries;
+      detectorResolveDays = (health.thresholds && health.thresholds.resolve_after_days) || detectorResolveDays;
       const input = $("#surv-date");
       if (!from) {
         showError("No hospital summaries yet. Build them with: python models/objectiveB/node.py --build");
@@ -225,6 +316,8 @@
     input.value = next;
     runScan(next);
   });
+  document.querySelectorAll(".surv-subtab").forEach(b => b.addEventListener("click", () => showSubtab(b.dataset.subtab)));
+  $("#history-disease").addEventListener("change", renderHistory);
   $("#alert-list").addEventListener("click", async event => {
     const button = event.target.closest("[data-ack]");
     if (!button) return;

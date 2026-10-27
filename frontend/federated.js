@@ -4,7 +4,7 @@
 (() => {
   const $ = selector => document.querySelector(selector);
   const esc = escapeHtml;
-  const COLORS = { fed: "#008069", alone: "#8a9792", ink: "#43534d", grid: "#e7edeb", surface: "#ffffff" };
+  const COLORS = { fed: "#1d5fa4", alone: "#7b8791", ink: "#3b4651", grid: "#e4e8ec", surface: "#ffffff" };
   let resizeTimer;
 
   let data = null;
@@ -105,11 +105,13 @@
   // ---------------------------------------------------------------- header numbers
   function renderKpis() {
     const trained = data.tasks.filter(t => t.available).length;
-    $("#fl-kpis").innerHTML = [
-      [data.hospitals.length, "Hospitals take part", "Each keeps its own patients"],
-      [`${trained} of ${data.tasks.length}`, "Models trained across them", "Disease, treatment, atypical cases, outbreaks"],
-      ["0", "Patient rows leave a hospital", "Only models and summary statistics travel, see what is and isn't protected below"],
-    ].map(([value, label, note]) => `<div class="fl-tile"><strong>${esc(value)}</strong><span>${esc(label)}</span><small>${esc(note)}</small></div>`).join("");
+    $("#fl-kpis").innerHTML = `<table class="data-table fl-summary-table">
+      <thead><tr><th scope="col">Measure</th><th scope="col" class="num">Value</th><th scope="col">Detail</th></tr></thead>
+      <tbody>${[
+        [data.hospitals.length, "Hospitals take part", "Each keeps its own patients"],
+        [`${trained} of ${data.tasks.length}`, "Models trained across them", "Disease, treatment, atypical cases, outbreaks"],
+        ["0", "Patient rows leave a hospital", "Only models and summary statistics travel, see what is and isn't protected below"],
+      ].map(([value, label, note]) => `<tr><th scope="row">${esc(label)}</th><td class="num">${esc(value)}</td><td>${esc(note)}</td></tr>`).join("")}</tbody></table>`;
   }
 
   function renderTaskButtons() {
@@ -166,7 +168,7 @@
   function renderDetail(task) {
     const updated = task.updated ? new Date(task.updated).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "";
     $("#fl-detail").innerHTML = `
-      <p class="result-kicker">${esc(task.title).toUpperCase()}${updated ? ` <span class="surv-day">· trained ${esc(updated)}</span>` : ""}</p>
+      <p class="result-kicker">${esc(task.title)}${updated ? ` <span class="surv-day">trained ${esc(updated)}</span>` : ""}</p>
       <h2 class="fl-question">${esc(task.question)}</h2>
       <p class="fl-model">${esc(task.model)}</p>
       <div class="fl-lists">
@@ -189,16 +191,18 @@
     const better = m.higher_is_better === null ? null : (m.higher_is_better ? m.federated > m.alone : m.federated < m.alone);
     const delta = m.federated !== null && m.alone !== null ? m.federated - m.alone : null;
     const deltaHtml = delta !== null && better !== null
-      ? `<em class="fl-delta ${better ? "good" : "bad"}">${fmtDelta(delta, m.format)} vs alone <small>${better ? "better" : "worse"}</small></em>` : "";
-    const cell = (cls, label, value, extra = "") => `<div class="fl-cell ${cls}"><span class="fl-cell-label"><i class="fl-key ${cls}"></i>${label}</span><strong>${fmt(value, m.format)}</strong>${extra}</div>`;
+      ? `<span class="fl-delta ${better ? "good" : "bad"}">${fmtDelta(delta, m.format)} vs alone, ${better ? "better" : "worse"}</span>` : "";
+    const row = (cls, label, value, extra = "") => `<tr${cls === "fed" ? ' class="top"' : ""}><th scope="row"><i class="fl-key ${cls}"></i>${label}</th><td class="num">${fmt(value, m.format)}</td><td>${extra}</td></tr>`;
     const direction = m.higher_is_better === null ? "" : m.higher_is_better ? "Higher is better." : "Lower is better.";
     const wins = m.higher_is_better !== null && m.hospitals_improved !== null && m.hospitals_improved !== undefined
       ? `Federated beats training alone at <b>${m.hospitals_improved} of ${m.hospitals}</b> hospitals. ` : "";
-    return `<div class="fl-compare">
-        ${cell("alone", "Each hospital alone", m.alone)}
-        ${cell("fed", "Federated", m.federated, deltaHtml)}
-        ${cell("central", "Pooled in one place", m.centralized, '<small class="fl-cell-note">simulation only: real hospitals cannot do this</small>')}
-      </div>
+    return `<table class="data-table compare-table">
+        <thead><tr><th scope="col">Training setup</th><th scope="col" class="num">${esc(m.label)}</th><th scope="col">Note</th></tr></thead>
+        <tbody>
+        ${row("alone", "Each hospital alone", m.alone)}
+        ${row("fed", "Federated", m.federated, deltaHtml)}
+        ${row("central", "Pooled in one place", m.centralized, "Simulation only: real hospitals cannot do this")}
+        </tbody></table>
       <p class="fl-wins">${wins}${direction} Averages are weighted by each hospital's test patients.</p>`;
   }
 
@@ -219,7 +223,7 @@
       const y = top + i * rowH + rowH / 2;
       const improved = m.higher_is_better === null ? null : (m.higher_is_better ? r.federated > r.alone : r.federated < r.alone);
       const link = Number.isFinite(r.alone) && Number.isFinite(r.federated)
-        ? `<line x1="${x(r.alone).toFixed(1)}" x2="${x(r.federated).toFixed(1)}" y1="${y}" y2="${y}" stroke="${improved === false ? "#e9a99d" : "#9fd3c1"}" stroke-width="3" stroke-linecap="round"/>` : "";
+        ? `<line x1="${x(r.alone).toFixed(1)}" x2="${x(r.federated).toFixed(1)}" y1="${y}" y2="${y}" stroke="${improved === false ? "#e9a99d" : "#a9c4e2"}" stroke-width="3" stroke-linecap="round"/>` : "";
       const central = Number.isFinite(r.centralized) ? `<circle cx="${x(r.centralized).toFixed(1)}" cy="${y}" r="5" fill="${COLORS.surface}" stroke="${COLORS.ink}" stroke-width="2"/>` : "";
       const alone = Number.isFinite(r.alone) ? `<circle cx="${x(r.alone).toFixed(1)}" cy="${y}" r="5" fill="${COLORS.alone}" stroke="${COLORS.surface}" stroke-width="2"/>` : "";
       const fed = Number.isFinite(r.federated) ? `<circle cx="${x(r.federated).toFixed(1)}" cy="${y}" r="5.5" fill="${COLORS.fed}" stroke="${COLORS.surface}" stroke-width="2"/>` : "";
@@ -242,7 +246,7 @@
       const same = r.federated === r.centralized;
       return `<tr><th scope="row">${esc(r.label)}</th><td>${fmt(r.federated, r.format)}</td><td>${fmt(r.centralized, r.format)}</td><td>${same ? "identical" : "differs"}</td></tr>`;
     }).join("");
-    return `<p class="result-kicker">HELD-OUT RESULTS ${c.days ? `<span class="surv-day">· ${esc(c.days[0])} to ${esc(c.days[1])}</span>` : ""}</p>
+    return `<p class="result-kicker">Held-out results ${c.days ? `<span class="surv-day">${esc(c.days[0])} to ${esc(c.days[1])}</span>` : ""}</p>
       <div class="heat-wrap"><table class="fl-compare-table"><thead><tr><th scope="col">Measure</th><th scope="col">Federated</th><th scope="col">Centralised pipeline</th><th scope="col"></th></tr></thead><tbody>${rows}</tbody></table></div>
       <p class="fl-wins">The detector already works on daily counts, so federating its calibration gives the same alerts as pooling the records would.</p>`;
   }
@@ -252,7 +256,7 @@
   function renderResults(task) {
     const el = $("#fl-results");
     if (!task.available) {
-      el.innerHTML = `<p class="result-kicker">RESULTS</p><p class="empty-state">${esc(task.hint || "No results yet.")}</p>`;
+      el.innerHTML = `<p class="result-kicker">Results</p><p class="empty-state">${esc(task.hint || "No results yet.")}</p>`;
       return;
     }
     if (task.comparison) {
@@ -263,14 +267,14 @@
     metricFor[task.id] = metric.id;
     const picker = task.metrics.length > 1
       ? `<div class="fl-metrics" role="group" aria-label="Measure">${task.metrics.map(m => `<button type="button" class="fl-metric" data-metric="${m.id}" aria-pressed="${m.id === metric.id}">${esc(m.label)}</button>`).join("")}</div>` : "";
-    el.innerHTML = `<p class="result-kicker">RESULTS ON PATIENTS THE MODELS NEVER SAW</p>
+    el.innerHTML = `<p class="result-kicker">Results on patients the models never saw</p>
       ${picker}
       <h3 class="fl-chart-title">${esc(metric.label)}</h3>
       ${compareCells(metric)}
       <p class="fl-subhead">Hospital by hospital</p>
       ${legendHtml()}
       <div class="fl-chart" id="fl-dumbbell">${dumbbellSvg(metric, chartWidth(el))}</div>
-      <p class="fl-chart-note">Each line runs from a hospital training alone to the federated model${metric.higher_is_better === null ? "" : ` (green when ${metric.higher_is_better ? "higher" : "lower"}, which is better)`}. The axis does not start at zero, so read the numbers, not the line lengths.</p>
+      <p class="fl-chart-note">Each line runs from a hospital training alone to the federated model${metric.higher_is_better === null ? "" : ` (blue when federated is ${metric.higher_is_better ? "higher" : "lower"}, which is better, red when it is worse)`}. The axis does not start at zero, so read the numbers, not the line lengths.</p>
       ${tableHtml(metric)}`;
     const wrap = $("#fl-dumbbell");
     const rows = metric.per_hospital;
@@ -389,10 +393,10 @@
     replay.turn = n;
     const picker = options.length > 1
       ? `<div class="fl-metrics" role="group" aria-label="Measure">${options.map(m => `<button type="button" class="fl-metric" data-replay-metric="${m.id}" aria-pressed="${m.id === replay.metric}">${esc(m.label)}</button>`).join("")}</div>` : "";
-    section.innerHTML = `<p class="result-kicker">WATCH IT LEARN <span class="surv-day">· replay of the recorded training run</span></p>
+    section.innerHTML = `<p class="result-kicker">Watch it learn <span class="surv-day">replay of the recorded training run</span></p>
       ${picker}
       <div class="fl-controls">
-        <button class="surv-button" id="fl-play" type="button">Play</button>
+        <button class="secondary-button" id="fl-play" type="button">Play</button>
         <label class="fl-scrub-wrap"><span class="sr-only">Turn</span><input id="fl-scrub" type="range" min="1" max="${n}" value="${n}"></label>
       </div>
       <p class="fl-readout" id="fl-readout" aria-live="off"></p>
@@ -450,11 +454,13 @@
 
   // ---------------------------------------------------------------- privacy
   function renderPrivacy() {
-    const list = (items, cls, icon) => items.map(i => `<li class="${cls}"><span class="fl-icon" aria-hidden="true">${icon}</span><div><strong>${esc(i.label)}</strong><p>${esc(i.detail)}</p></div></li>`).join("");
-    $("#fl-privacy").innerHTML = `<p class="result-kicker">PRIVACY AND SECURITY, STATED PLAINLY</p>
+    const table = (items, head) => `<table class="data-table">
+      <thead><tr><th scope="col">${head}</th><th scope="col">Detail</th></tr></thead>
+      <tbody>${items.map(i => `<tr><th scope="row">${esc(i.label)}</th><td>${esc(i.detail)}</td></tr>`).join("")}</tbody></table>`;
+    $("#fl-privacy").innerHTML = `<p class="result-kicker">Privacy and security</p>
       <div class="fl-privacy-grid">
-        <div><h3 class="fl-chart-title">In place</h3><ul class="fl-checks">${list(data.protections, "ok", "✓")}</ul></div>
-        <div><h3 class="fl-chart-title">Not covered</h3><ul class="fl-checks">${list(data.limits, "gap", "!")}</ul></div>
+        <div><h3 class="fl-chart-title">In place</h3>${table(data.protections, "Protection")}</div>
+        <div><h3 class="fl-chart-title">Not covered</h3>${table(data.limits, "Gap")}</div>
       </div>`;
     $("#fl-scope").textContent = data.scope_note;
   }

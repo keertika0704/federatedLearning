@@ -3,195 +3,222 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f7f5">
-  <title>Carepath | Clinical assessment</title>
+  <meta name="theme-color" content="#f4f5f7">
+  <title>Carepath | Clinical decision support</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
   <script src="/surveillance.js" defer></script>
   <script src="/federated.js" defer></script>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#intake" aria-label="Carepath home">
-      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
-      <span>carepath<span class="brand-period">.</span></span>
-    </a>
-    <nav class="topnav" aria-label="Sections">
-      <button class="topnav-tab active" type="button" data-tab="assessment" aria-current="page">Assessment</button>
-      <button class="topnav-tab" type="button" data-tab="surveillance">Surveillance <span class="tab-badge hidden" id="alert-badge" aria-label="open alerts">0</span></button>
-      <button class="topnav-tab" type="button" data-tab="federated" aria-label="Federated learning"><span class="tab-long" aria-hidden="true">Federated learning</span><span class="tab-short" aria-hidden="true">Federated</span></button>
-    </nav>
-    <div class="topbar-meta"><span class="status-dot"></span> Clinical decision support <span class="meta-divider"></span> Private session</div>
-    <div class="session-status"><span class="status-dot"></span> Secure session</div>
-  </header>
+  <div class="app">
+    <aside class="sidebar">
+      <a class="brand" href="#intake" aria-label="Carepath home"><span class="brand-mark" aria-hidden="true"></span>Carepath</a>
+      <nav class="sidenav" aria-label="Sections">
+        <p class="nav-group">Clinical</p>
+        <button class="topnav-tab active" type="button" data-tab="assessment" data-title="Patient assessment" aria-current="page">Patient assessment</button>
+        <p class="nav-group">Monitoring</p>
+        <button class="topnav-tab" type="button" data-tab="surveillance" data-title="Outbreak surveillance">Outbreak surveillance <span class="tab-badge hidden" id="alert-badge" aria-label="open alerts">0</span></button>
+        <button class="topnav-tab" type="button" data-tab="federated" data-title="Federated learning">Federated learning</button>
+      </nav>
+      <p class="sidebar-foot">Decision support for qualified healthcare professionals. Not a diagnosis.</p>
+    </aside>
 
-  <main class="shell">
-    <section class="view intake-view" id="intake-view" aria-labelledby="page-title">
-      <div class="page-intro">
-        <div class="eyebrow"><span class="eyebrow-line"></span> PATIENT ASSESSMENT <span class="eyebrow-index">01 / 02</span></div>
-        <h1 id="page-title">Start with the <em>person.</em></h1>
-        <p class="intro-copy">Enter the patient’s current presentation to generate a disease prediction and a treatment plan for clinical review.</p>
-      </div>
+    <div class="workspace">
+      <header class="topbar">
+        <p class="crumb"><span>Carepath</span> / <strong id="crumb">Patient assessment</strong></p>
+        <p class="session-status"><span class="status-dot"></span> Secure session</p>
+      </header>
 
-      <form id="patient-form" novalidate>
-        <div class="form-grid">
-          <div class="main-column">
-            <section class="form-section patient-section">
-              <div class="section-heading">
-                <div class="section-number">01</div>
-                <div><h2>Patient details</h2><p>Basic identifying and demographic information</p></div>
+      <main class="shell">
+        <section class="view intake-view" id="intake-view" aria-labelledby="page-title">
+          <div class="page-intro">
+            <p class="step-line">Step 1 of 3</p>
+            <h1 id="page-title">New patient assessment</h1>
+            <p class="intro-copy">Enter the current presentation to get a disease prediction and a treatment plan for clinical review.</p>
+          </div>
+
+          <form id="patient-form" novalidate>
+            <div class="form-grid">
+              <div class="main-column">
+                <section class="form-section patient-section">
+                  <h2 class="section-title">Patient details</h2>
+                  <div class="field-grid patient-fields">
+                    <label class="field span-two" for="patient-name"><span>Patient name <b>Stays in this session</b></span><input id="patient-name" name="patientName" autocomplete="name" placeholder="e.g. Jordan Lee" required></label>
+                    <label class="field" for="age"><span>Age <i>years</i></span><input id="age" name="age" type="number" min="0" max="120" placeholder="35" required></label>
+                    <label class="field" for="gender"><span>Gender</span><select id="gender" name="gender" required><option value="" selected disabled>Select</option><option value="F">Female</option><option value="M">Male</option></select></label>
+                  </div>
+                </section>
+
+                <section class="form-section vitals-section">
+                  <h2 class="section-title">Vital signs <span class="optional-label">Optional</span></h2>
+                  <div class="field-grid vitals-grid">
+                    <label class="field" for="temperature"><span>Temperature <i>°C</i></span><input id="temperature" name="temperature" type="number" min="30" max="45" step="0.1" placeholder="37.0"></label>
+                    <label class="field" for="heart-rate"><span>Heart rate <i>bpm</i></span><input id="heart-rate" name="heart_rate" type="number" min="20" max="250" placeholder="72"></label>
+                    <label class="field" for="respiratory-rate"><span>Respiratory rate <i>/ min</i></span><input id="respiratory-rate" name="respiratory_rate" type="number" min="4" max="80" placeholder="16"></label>
+                    <label class="field" for="spo2"><span>Oxygen saturation <i>SpO₂ %</i></span><input id="spo2" name="spo2" type="number" min="50" max="100" placeholder="98"></label>
+                    <label class="field" for="systolic-bp"><span>Systolic pressure <i>mmHg</i></span><input id="systolic-bp" name="systolic_bp" type="number" min="50" max="260" placeholder="120"></label>
+                    <label class="field" for="diastolic-bp"><span>Diastolic pressure <i>mmHg</i></span><input id="diastolic-bp" name="diastolic_bp" type="number" min="20" max="180" placeholder="80"></label>
+                  </div>
+                </section>
+
+                <section class="form-section symptoms-section">
+                  <div class="section-row">
+                    <h2 class="section-title">Symptoms</h2>
+                    <span class="selected-count" id="selected-count">0 selected</span>
+                  </div>
+                  <label class="search-field" for="symptom-search"><input id="symptom-search" type="search" placeholder="Filter symptoms" autocomplete="off"><kbd>/</kbd></label>
+                  <div class="symptom-groups" id="symptom-list" aria-live="polite"></div>
+                  <p class="no-symptoms hidden" id="no-symptoms">No symptoms match that search.</p>
+                </section>
               </div>
-              <div class="field-grid patient-fields">
-                <label class="field span-two" for="patient-name"><span>Patient name <b>LOCAL ONLY</b></span><input id="patient-name" name="patientName" autocomplete="name" placeholder="e.g. Jordan Lee" required></label>
-                <label class="field" for="age"><span>Age <i>years</i></span><input id="age" name="age" type="number" min="0" max="120" placeholder="35" required></label>
-                <label class="field" for="gender"><span>Gender</span><select id="gender" name="gender" required><option value="" selected disabled>Select</option><option value="F">Female</option><option value="M">Male</option></select></label>
-              </div>
+
+              <aside class="side-column">
+                <p class="side-note"><strong>Patient name stays here.</strong> It is shown in your session only and is not sent to the prediction API.</p>
+                <button class="primary-button" id="diagnose-button" type="submit"><span>Run prediction</span></button>
+                <p class="form-error hidden" id="form-error" role="alert"></p>
+                <p class="clinical-disclaimer">The disease model runs first. You choose severity in the next step.</p>
+              </aside>
+            </div>
+          </form>
+        </section>
+
+        <section class="view severity-view hidden" id="severity-view" aria-labelledby="severity-title">
+          <button class="back-button" id="back-to-intake" type="button">Back to patient details</button>
+          <div class="page-intro">
+            <p class="step-line">Step 2 of 3</p>
+            <h1 id="severity-title">Prediction</h1>
+            <p class="intro-copy">Patient: <strong id="severity-patient-name"></strong></p>
+          </div>
+          <div class="severity-step-layout">
+            <section class="predicted-condition">
+              <div id="step-diagnosis" class="diagnosis-area"></div>
+              <div id="step-atypical" class="atypical-area"></div>
+            </section>
+            <form class="severity-panel" id="severity-form">
+              <h2 class="section-title">Clinician-assessed severity</h2>
+              <fieldset class="severity-tiles">
+                <legend class="sr-only">Select clinician-assessed severity</legend>
+                <label class="sev-tile mild"><input type="radio" name="severity_id" value="SV001" required><span class="sev-dot"></span><strong>Mild</strong></label>
+                <label class="sev-tile moderate"><input type="radio" name="severity_id" value="SV002"><span class="sev-dot"></span><strong>Moderate</strong></label>
+                <label class="sev-tile severe"><input type="radio" name="severity_id" value="SV003"><span class="sev-dot"></span><strong>Severe</strong></label>
+              </fieldset>
+              <button class="primary-button plan-button" id="plan-button" type="submit"><span>Build treatment plan</span></button>
+              <p class="form-error hidden" id="severity-error" role="alert"></p>
+            </form>
+          </div>
+        </section>
+
+        <section class="view results-view hidden" id="results-view" aria-labelledby="results-title">
+          <button class="back-button" id="back-to-severity" type="button">Change severity</button>
+          <div class="page-intro result-heading">
+            <div>
+              <p class="step-line">Step 3 of 3</p>
+              <h1 id="results-title">Assessment summary</h1>
+              <p class="intro-copy">Patient: <strong id="result-patient-name"></strong></p>
+            </div>
+            <p class="severity-result" id="severity-result"></p>
+          </div>
+          <div class="results-layout">
+            <div class="results-main">
+              <section class="block diagnosis-block">
+                <div id="primary-diagnosis" class="diagnosis-area"></div>
+                <div id="result-atypical" class="atypical-area"></div>
+              </section>
+              <section class="block treatment-block">
+                <h2 class="section-title">Recommended treatments</h2>
+                <div class="treatment-list" id="treatment-list"></div>
+              </section>
+            </div>
+            <aside class="results-aside">
+              <section class="block patient-summary">
+                <h2 class="section-title">Vital signs</h2>
+                <div id="snapshot-vitals"></div>
+                <h2 class="section-title snapshot-title">Symptoms reported</h2>
+                <div id="snapshot-symptoms"></div>
+              </section>
+              <p class="review-line"><strong>Clinician review required.</strong> This output supports a decision and does not replace one.</p>
+              <button class="secondary-button" id="new-assessment" type="button">Start a new assessment</button>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view surveillance-view hidden" id="surveillance-view" aria-labelledby="surv-title">
+          <div class="page-intro">
+            <h1 id="surv-title">Outbreak surveillance</h1>
+            <p class="intro-copy">Each hospital shares only daily counts, never patient records. This page flags a disease, or a cluster of unusual presentations, that is rising at several hospitals at the same time.</p>
+          </div>
+
+          <div class="surv-subtabs" role="tablist" aria-label="Surveillance views">
+            <button class="surv-subtab active" id="subtab-live" type="button" role="tab" aria-selected="true" aria-controls="surv-live" data-subtab="live">Live monitoring</button>
+            <button class="surv-subtab" id="subtab-history" type="button" role="tab" aria-selected="false" aria-controls="surv-history" data-subtab="history">Past outbreaks <span class="subtab-count hidden" id="history-count"></span></button>
+          </div>
+          <p class="form-error hidden" id="surv-error" role="alert"></p>
+
+          <div id="surv-live" role="tabpanel" aria-labelledby="subtab-live">
+            <div class="surv-controls">
+              <label class="field" for="surv-date"><span>Analyse as of <i>replay any past day</i></span><input id="surv-date" type="date"></label>
+              <button class="primary-button" id="surv-run" type="button">Run scan</button>
+              <button class="secondary-button" id="surv-next" type="button">Next day</button>
+            </div>
+            <p class="surv-status" id="surv-status" role="status"></p>
+
+            <section class="surv-section">
+              <h2 class="section-title">Active alerts</h2>
+              <div class="alert-list" id="alert-list" aria-live="polite"></div>
             </section>
 
-            <section class="form-section vitals-section">
-              <div class="section-heading">
-                <div class="section-number">02</div>
-                <div><h2>Vital signs</h2><p>Most recent recorded measurements <span class="optional-label">OPTIONAL</span></p></div>
-              </div>
-              <div class="field-grid vitals-grid">
-                <label class="field" for="temperature"><span>Temperature <i>°C</i></span><input id="temperature" name="temperature" type="number" min="30" max="45" step="0.1" placeholder="37.0"></label>
-                <label class="field" for="heart-rate"><span>Heart rate <i>bpm</i></span><input id="heart-rate" name="heart_rate" type="number" min="20" max="250" placeholder="72"></label>
-                <label class="field" for="respiratory-rate"><span>Respiratory rate <i>/ min</i></span><input id="respiratory-rate" name="respiratory_rate" type="number" min="4" max="80" placeholder="16"></label>
-                <label class="field" for="spo2"><span>Oxygen saturation <i>SpO₂ %</i></span><input id="spo2" name="spo2" type="number" min="50" max="100" placeholder="98"></label>
-                <label class="field" for="systolic-bp"><span>Systolic pressure <i>mmHg</i></span><input id="systolic-bp" name="systolic_bp" type="number" min="50" max="260" placeholder="120"></label>
-                <label class="field" for="diastolic-bp"><span>Diastolic pressure <i>mmHg</i></span><input id="diastolic-bp" name="diastolic_bp" type="number" min="20" max="180" placeholder="80"></label>
-              </div>
-            </section>
-
-            <section class="form-section symptoms-section">
-              <div class="section-heading symptoms-heading">
-                <div class="section-number">03</div>
-                <div><h2>Symptoms</h2><p>Choose all symptoms present</p></div>
-                <span class="selected-count" id="selected-count">0 selected</span>
-              </div>
-              <label class="search-field" for="symptom-search"><span aria-hidden="true">⌕</span><input id="symptom-search" type="search" placeholder="Find a symptom" autocomplete="off"><kbd>/</kbd></label>
-              <div class="symptom-groups" id="symptom-list" aria-live="polite"></div>
-              <p class="no-symptoms hidden" id="no-symptoms">No symptoms match that search.</p>
+            <section class="surv-section">
+              <h2 class="section-title">Last 7 days against normal <span class="surv-day" id="trend-day"></span></h2>
+              <div class="heat-wrap"><table class="heat-grid" id="heat-grid"></table></div>
+              <p class="heat-legend"><span class="heat-key lvl-0"></span> normal <span class="heat-key lvl-1"></span> up 30% or more <span class="heat-key lvl-2"></span> statistically unusual</p>
             </section>
           </div>
 
-          <aside class="side-column">
-            <section class="privacy-note">
-              <span class="privacy-icon" aria-hidden="true">◈</span>
-              <div><strong>Patient name stays here</strong><p>The name is displayed in your session only and is not sent to the prediction API.</p></div>
+          <div class="hidden" id="surv-history" role="tabpanel" aria-labelledby="subtab-history">
+            <div class="surv-controls">
+              <label class="field" for="history-disease"><span>Disease <i>filter the history</i></span><select id="history-disease"><option value="">All diseases</option></select></label>
+            </div>
+            <p class="surv-status" id="history-summary" role="status"></p>
+            <section class="surv-section">
+              <h2 class="section-title">Timeline</h2>
+              <div class="history-timeline" id="history-timeline"></div>
+              <p class="heat-legend"><span class="heat-key sev-watch"></span> watch <span class="heat-key sev-warning"></span> warning <span class="heat-key sev-critical"></span> critical</p>
             </section>
+            <section class="surv-section">
+              <h2 class="section-title">Resolved outbreaks <span class="surv-day">newest first</span></h2>
+              <div class="alert-list" id="history-list"></div>
+            </section>
+          </div>
 
-            <button class="diagnose-button" id="diagnose-button" type="submit"><span>Diagnose patient</span><span class="button-arrow" aria-hidden="true">→</span></button>
-            <p class="form-error hidden" id="form-error" role="alert"></p>
-            <p class="clinical-disclaimer">The disease model will run first. Severity is selected in the next step.</p>
-          </aside>
-        </div>
-      </form>
-      <footer class="page-footer"><span>CAREPATH <span>·</span> CLINICAL SUPPORT</span><span>For use by qualified healthcare professionals</span></footer>
-    </section>
-
-    <section class="view severity-view hidden" id="severity-view" aria-labelledby="severity-title">
-      <div class="results-topline"><button class="back-button" id="back-to-intake" type="button"><span aria-hidden="true">←</span> Edit patient</button><div class="eyebrow"><span class="eyebrow-line"></span> CLINICIAN REVIEW <span class="eyebrow-index">02 / 03</span></div></div>
-      <div class="page-intro severity-intro"><p class="result-patient-label">PATIENT <span id="severity-patient-name"></span></p><h1 id="severity-title">Prediction <em>ready.</em></h1></div>
-      <div class="severity-step-layout">
-        <section class="predicted-condition">
-          <div id="step-diagnosis" class="diagnosis-area"></div>
-          <div id="step-atypical" class="atypical-area"></div>
+          <p class="surv-note" id="surv-note"></p>
         </section>
-        <form class="severity-panel severity-step-panel" id="severity-form">
-          <h2>How severe is it?</h2>
-          <fieldset class="severity-tiles">
-            <legend class="sr-only">Select clinician-assessed severity</legend>
-            <label class="sev-tile mild"><input type="radio" name="severity_id" value="SV001" required><span class="sev-dot"></span><strong>Mild</strong></label>
-            <label class="sev-tile moderate"><input type="radio" name="severity_id" value="SV002"><span class="sev-dot"></span><strong>Moderate</strong></label>
-            <label class="sev-tile severe"><input type="radio" name="severity_id" value="SV003"><span class="sev-dot"></span><strong>Severe</strong></label>
-          </fieldset>
-          <button class="diagnose-button plan-button" id="plan-button" type="submit"><span>Build treatment plan</span><span class="button-arrow" aria-hidden="true">→</span></button>
-          <p class="form-error hidden" id="severity-error" role="alert"></p>
-        </form>
-      </div>
-    </section>
 
-    <section class="view results-view hidden" id="results-view" aria-labelledby="results-title">
-      <div class="results-topline"><button class="back-button" id="back-to-severity" type="button"><span aria-hidden="true">←</span> Change severity</button><div class="eyebrow"><span class="eyebrow-line"></span> ASSESSMENT RESULT <span class="eyebrow-index">03 / 03</span></div></div>
-      <div class="result-heading">
-        <div><p class="result-patient-label">PATIENT <span id="result-patient-name"></span></p><h1 id="results-title">Assessment <em>summary.</em></h1></div>
-        <div class="severity-result" id="severity-result"></div>
-      </div>
-      <div class="results-layout">
-        <div class="results-main">
-          <section class="diagnosis-block">
-            <div id="primary-diagnosis" class="diagnosis-area"></div>
-            <div id="result-atypical" class="atypical-area"></div>
-          </section>
-          <section class="treatment-block">
-            <p class="result-kicker">RECOMMENDED TREATMENTS</p>
-            <div class="treatment-list" id="treatment-list"></div>
-          </section>
-        </div>
-        <aside class="results-aside">
-          <section class="patient-summary"><p class="result-kicker">VITALS</p><div class="vital-gauges" id="snapshot-vitals"></div><div class="snapshot-symptoms"><p class="result-kicker">SYMPTOMS</p><div id="snapshot-symptoms"></div></div></section>
-          <p class="review-line"><span aria-hidden="true">!</span> Clinician review required</p>
-          <button class="new-assessment" id="new-assessment" type="button">Start a new assessment <span aria-hidden="true">↗</span></button>
-        </aside>
-      </div>
-    </section>
+        <section class="view federated-view hidden" id="federated-view" aria-labelledby="fl-title">
+          <div class="page-intro">
+            <h1 id="fl-title">Federated learning</h1>
+            <p class="intro-copy">Every hospital trains on its own patients. Only the model, never a patient record, travels to be combined, so each hospital benefits from what all of them have seen.</p>
+          </div>
+          <p class="form-error hidden" id="fl-error" role="alert"></p>
+          <div class="fl-kpis" id="fl-kpis"></div>
 
-    <section class="view surveillance-view hidden" id="surveillance-view" aria-labelledby="surv-title">
-      <div class="page-intro">
-        <div class="eyebrow"><span class="eyebrow-line"></span> POPULATION SURVEILLANCE</div>
-        <h1 id="surv-title">Watch the <em>spread.</em></h1>
-        <p class="intro-copy">Each hospital shares only daily counts, never patient records. This page flags a disease, or a cluster of unusual presentations, that is rising at several hospitals at the same time.</p>
-      </div>
+          <div class="fl-tasks" id="fl-tasks" role="group" aria-label="Choose a model"></div>
+          <div class="fl-stage">
+            <figure class="fl-network" id="fl-network"></figure>
+            <div class="fl-detail" id="fl-detail" aria-live="polite"></div>
+          </div>
 
-      <div class="surv-controls">
-        <label class="field" for="surv-date"><span>Analyse as of <i>replay any past day</i></span><input id="surv-date" type="date"></label>
-        <button class="surv-button" id="surv-run" type="button">Run scan</button>
-        <button class="surv-button secondary" id="surv-next" type="button">Next day →</button>
-      </div>
-      <p class="surv-status" id="surv-status" role="status"></p>
-      <p class="form-error hidden" id="surv-error" role="alert"></p>
-
-      <section class="surv-section">
-        <p class="result-kicker">ALERTS</p>
-        <div class="alert-list" id="alert-list" aria-live="polite"></div>
-      </section>
-
-      <section class="surv-section">
-        <p class="result-kicker">LAST 7 DAYS VS NORMAL <span class="surv-day" id="trend-day"></span></p>
-        <div class="heat-wrap"><table class="heat-grid" id="heat-grid"></table></div>
-        <p class="heat-legend"><span class="heat-key lvl-0"></span> normal <span class="heat-key lvl-1"></span> up 30% or more <span class="heat-key lvl-2"></span> statistically unusual</p>
-      </section>
-
-      <p class="surv-note" id="surv-note"></p>
-      <footer class="page-footer"><span>CAREPATH <span>·</span> SURVEILLANCE</span><span>Decision support, not a diagnosis</span></footer>
-    </section>
-
-    <section class="view federated-view hidden" id="federated-view" aria-labelledby="fl-title">
-      <div class="page-intro">
-        <div class="eyebrow"><span class="eyebrow-line"></span> OBJECTIVE C · FEDERATED LEARNING</div>
-        <h1 id="fl-title">Learn together, <em>keep the data.</em></h1>
-        <p class="intro-copy">Every hospital trains on its own patients. Only the model, never a patient record, travels to be combined, so each hospital benefits from what all of them have seen.</p>
-      </div>
-      <p class="form-error hidden" id="fl-error" role="alert"></p>
-      <div class="fl-kpis" id="fl-kpis"></div>
-
-      <div class="fl-tasks" id="fl-tasks" role="group" aria-label="Choose a model"></div>
-      <div class="fl-stage">
-        <figure class="fl-network" id="fl-network"></figure>
-        <div class="fl-detail" id="fl-detail" aria-live="polite"></div>
-      </div>
-
-      <section class="surv-section" id="fl-results" aria-live="polite"></section>
-      <section class="surv-section hidden" id="fl-replay"></section>
-      <section class="surv-section" id="fl-privacy"></section>
-      <p class="surv-note" id="fl-scope"></p>
-      <footer class="page-footer"><span>CAREPATH <span>·</span> FEDERATED LEARNING</span><span>Results from a simulation on synthetic data</span></footer>
-    </section>
-  </main>
+          <section class="surv-section" id="fl-results" aria-live="polite"></section>
+          <section class="surv-section hidden" id="fl-replay"></section>
+          <section class="surv-section" id="fl-privacy"></section>
+          <p class="surv-note" id="fl-scope"></p>
+        </section>
+      </main>
+    </div>
+  </div>
 
   <div class="toast hidden" id="toast" role="status"></div>
 </body>
