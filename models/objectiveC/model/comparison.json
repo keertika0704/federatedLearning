@@ -1,0 +1,757 @@
+{
+  "generated_at": "2026-10-27T07:51:22+00:00",
+  "resamples": 1000,
+  "tasks": [
+    {
+      "id": "disease",
+      "title": "Disease classifier",
+      "kind": "scored",
+      "test_rows": 14155,
+      "metrics": [
+        {
+          "id": "accuracy",
+          "label": "Accuracy",
+          "format": "pct",
+          "higher_is_better": true,
+          "original": 0.96715,
+          "federated": 0.96736,
+          "difference": 0.00021,
+          "ci": [
+            -0.00162,
+            0.00219
+          ],
+          "verdict": "no clear difference",
+          "per_hospital": [
+            {
+              "hospital": "H001",
+              "rows": 1792,
+              "original": 0.96261,
+              "federated": 0.96596
+            },
+            {
+              "hospital": "H002",
+              "rows": 1446,
+              "original": 0.9751,
+              "federated": 0.97649
+            },
+            {
+              "hospital": "H003",
+              "rows": 1730,
+              "original": 0.96069,
+              "federated": 0.96185
+            },
+            {
+              "hospital": "H004",
+              "rows": 1518,
+              "original": 0.96574,
+              "federated": 0.96838
+            },
+            {
+              "hospital": "H005",
+              "rows": 1597,
+              "original": 0.96619,
+              "federated": 0.96368
+            },
+            {
+              "hospital": "H006",
+              "rows": 1171,
+              "original": 0.96926,
+              "federated": 0.9667
+            },
+            {
+              "hospital": "H007",
+              "rows": 1118,
+              "original": 0.97317,
+              "federated": 0.97138
+            },
+            {
+              "hospital": "H008",
+              "rows": 1199,
+              "original": 0.96497,
+              "federated": 0.9633
+            },
+            {
+              "hospital": "H009",
+              "rows": 988,
+              "original": 0.96356,
+              "federated": 0.96559
+            },
+            {
+              "hospital": "H010",
+              "rows": 1596,
+              "original": 0.97243,
+              "federated": 0.97118
+            }
+          ],
+          "hospitals_better": 5
+        },
+        {
+          "id": "macro_f1",
+          "label": "Macro F1 (every disease counts equally)",
+          "format": "pct",
+          "higher_is_better": true,
+          "original": 0.95273,
+          "federated": 0.95268,
+          "difference": -5e-05,
+          "ci": [
+            -0.00308,
+            0.00319
+          ],
+          "verdict": "no clear difference",
+          "per_hospital": [],
+          "hospitals_better": null
+        },
+        {
+          "id": "top3_accuracy",
+          "label": "Right disease among the top 3",
+          "format": "pct",
+          "higher_is_better": true,
+          "original": 0.99866,
+          "federated": 0.99901,
+          "difference": 0.00035,
+          "ci": [
+            0.0,
+            0.00078
+          ],
+          "verdict": "no clear difference",
+          "per_hospital": [],
+          "hospitals_better": null
+        },
+        {
+          "id": "D003_recall",
+          "label": "Chikungunya recall (the rarest disease)",
+          "format": "pct",
+          "higher_is_better": true,
+          "original": 0.77515,
+          "federated": 0.76923,
+          "difference": -0.00592,
+          "ci": [
+            -0.02848,
+            0.01819
+          ],
+          "verdict": "no clear difference",
+          "per_hospital": [
+            {
+              "hospital": "H001",
+              "rows": 1792,
+              "original": 0.80645,
+              "federated": 0.77419
+            },
+            {
+              "hospital": "H002",
+              "rows": 1446,
+              "original": 0.96,
+              "federated": 0.96
+            },
+            {
+              "hospital": "H003",
+              "rows": 1730,
+              "original": 0.66071,
+              "federated": 0.60714
+            },
+            {
+              "hospital": "H004",
+              "rows": 1518,
+              "original": 0.77358,
+              "federated": 0.79245
+            },
+            {
+              "hospital": "H005",
+              "rows": 1597,
+              "original": 0.8,
+              "federated": 0.8
+            },
+            {
+              "hospital": "H006",
+              "rows": 1171,
+              "original": 0.81395,
+              "federated": 0.81395
+            },
+            {
+              "hospital": "H007",
+              "rows": 1118,
+              "original": 1.0,
+              "federated": 1.0
+            },
+            {
+              "hospital": "H008",
+              "rows": 1199,
+              "original": 0.68889,
+              "federated": 0.68889
+            },
+            {
+              "hospital": "H009",
+              "rows": 988,
+              "original": 0.66667,
+              "federated": 0.7037
+            },
+            {
+              "hospital": "H010",
+              "rows": 1596,
+              "original": 0.86364,
+              "federated": 0.86364
+            }
+          ],
+          "hospitals_better": 2
+        }
+      ],
+      "facts": [
+        {
+          "label": "Trained on",
+          "original": "Every hospital's patients pooled in one place",
+          "federated": "Each hospital's own patients, which never left it"
+        },
+        {
+          "label": "Boosting iterations",
+          "original": "347",
+          "federated": "300"
+        },
+        {
+          "label": "Model file",
+          "original": "14.65 MB",
+          "federated": "7.01 MB"
+        }
+      ],
+      "notes": [
+        "Both models are scored on the same held-out patients, with the same features.",
+        "The federated model's turns and iterations were picked after looking at test results, so its score is slightly optimistic. The original model's size came from early stopping on a validation slice, not the test set.",
+        "The two have a different number of iterations, so a difference may come from model size as well as from how they were trained.",
+        "Rare-disease figures per hospital rest on 30 to 60 patients and are noisy."
+      ]
+    },
+    {
+      "id": "treatment",
+      "title": "Treatment recommender",
+      "kind": "scored",
+      "test_rows": 14155,
+      "metrics": [
+        {
+          "id": "auc",
+          "label": "Success prediction AUC",
+          "format": "num3",
+          "higher_is_better": true,
+          "original": 0.61424,
+          "federated": 0.61499,
+          "difference": 0.00075,
+          "ci": [
+            -0.00333,
+            0.00487
+          ],
+          "verdict": "no clear difference",
+          "per_hospital": [
+            {
+              "hospital": "H001",
+              "rows": 1792,
+              "original": 0.59436,
+              "federated": 0.59834
+            },
+            {
+              "hospital": "H002",
+              "rows": 1446,
+              "original": 0.61086,
+              "federated": 0.61259
+            },
+            {
+              "hospital": "H003",
+              "rows": 1730,
+              "original": 0.6359,
+              "federated": 0.63544
+            },
+            {
+              "hospital": "H004",
+              "rows": 1518,
+              "original": 0.63241,
+              "federated": 0.63946
+            },
+            {
+              "hospital": "H005",
+              "rows": 1597,
+              "original": 0.60028,
+              "federated": 0.605
+            },
+            {
+              "hospital": "H006",
+              "rows": 1171,
+              "original": 0.58787,
+              "federated": 0.59535
+            },
+            {
+              "hospital": "H007",
+              "rows": 1118,
+              "original": 0.58467,
+              "federated": 0.58679
+            },
+            {
+              "hospital": "H008",
+              "rows": 1199,
+              "original": 0.65555,
+              "federated": 0.64584
+            },
+            {
+              "hospital": "H009",
+              "rows": 988,
+              "original": 0.64776,
+              "federated": 0.64615
+            },
+            {
+              "hospital": "H010",
+              "rows": 1596,
+              "original": 0.60329,
+              "federated": 0.59309
+            }
+          ],
+          "hospitals_better": 6
+        },
+        {
+          "id": "recovery_mae",
+          "label": "Recovery-time error (days)",
+          "format": "days",
+          "higher_is_better": false,
+          "original": 1.51447,
+          "federated": 1.51773,
+          "difference": 0.00327,
+          "ci": [
+            -0.00087,
+            0.00752
+          ],
+          "verdict": "no clear difference",
+          "per_hospital": [
+            {
+              "hospital": "H001",
+              "rows": 1792,
+              "original": 1.48492,
+              "federated": 1.49683
+            },
+            {
+              "hospital": "H002",
+              "rows": 1446,
+              "original": 1.54517,
+              "federated": 1.54565
+            },
+            {
+              "hospital": "H003",
+              "rows": 1730,
+              "original": 1.50386,
+              "federated": 1.51143
+            },
+            {
+              "hospital": "H004",
+              "rows": 1518,
+              "original": 1.55678,
+              "federated": 1.55398
+            },
+            {
+              "hospital": "H005",
+              "rows": 1597,
+              "original": 1.51384,
+              "federated": 1.52147
+            },
+            {
+              "hospital": "H006",
+              "rows": 1171,
+              "original": 1.49626,
+              "federated": 1.49649
+            },
+            {
+              "hospital": "H007",
+              "rows": 1118,
+              "original": 1.515,
+              "federated": 1.51613
+            },
+            {
+              "hospital": "H008",
+              "rows": 1199,
+              "original": 1.51157,
+              "federated": 1.51591
+            },
+            {
+              "hospital": "H009",
+              "rows": 988,
+              "original": 1.53374,
+              "federated": 1.53498
+            },
+            {
+              "hospital": "H010",
+              "rows": 1596,
+              "original": 1.49492,
+              "federated": 1.49193
+            }
+          ],
+          "hospitals_better": 2
+        }
+      ],
+      "facts": [
+        {
+          "label": "Trained on",
+          "original": "Every hospital's patients pooled in one place",
+          "federated": "Each hospital's own patients, which never left it"
+        },
+        {
+          "label": "Boosting iterations (success / recovery)",
+          "original": "97 / 137",
+          "federated": "60 / 160"
+        },
+        {
+          "label": "Model files",
+          "original": "1.21 MB",
+          "federated": "0.63 MB"
+        }
+      ],
+      "notes": [
+        "Both models score the same held-out rows. Intervals resample whole patients, because one patient has several rows.",
+        "The signal in this data is weak (AUC around 0.61 for either model), so small differences are easy to over-read.",
+        "The federated settings were chosen on each hospital's own validation slice, never the test split."
+      ]
+    },
+    {
+      "id": "atypical",
+      "title": "Atypical-case detector",
+      "kind": "scored",
+      "test_rows": 14155,
+      "metrics": [
+        {
+          "id": "auc",
+          "label": "Detection AUC",
+          "format": "num3",
+          "higher_is_better": true,
+          "original": 0.85591,
+          "federated": 0.86094,
+          "difference": 0.00503,
+          "ci": [
+            0.00147,
+            0.00884
+          ],
+          "verdict": "better",
+          "per_hospital": [
+            {
+              "hospital": "H001",
+              "rows": 1792,
+              "original": 0.84672,
+              "federated": 0.85575
+            },
+            {
+              "hospital": "H002",
+              "rows": 1446,
+              "original": 0.85392,
+              "federated": 0.86061
+            },
+            {
+              "hospital": "H003",
+              "rows": 1730,
+              "original": 0.82255,
+              "federated": 0.83219
+            },
+            {
+              "hospital": "H004",
+              "rows": 1518,
+              "original": 0.891,
+              "federated": 0.89063
+            },
+            {
+              "hospital": "H005",
+              "rows": 1597,
+              "original": 0.84646,
+              "federated": 0.84757
+            },
+            {
+              "hospital": "H006",
+              "rows": 1171,
+              "original": 0.88699,
+              "federated": 0.88821
+            },
+            {
+              "hospital": "H007",
+              "rows": 1118,
+              "original": 0.80965,
+              "federated": 0.81925
+            },
+            {
+              "hospital": "H008",
+              "rows": 1199,
+              "original": 0.86081,
+              "federated": 0.86006
+            },
+            {
+              "hospital": "H009",
+              "rows": 988,
+              "original": 0.86191,
+              "federated": 0.85311
+            },
+            {
+              "hospital": "H010",
+              "rows": 1596,
+              "original": 0.87669,
+              "federated": 0.89258
+            }
+          ],
+          "hospitals_better": 7
+        },
+        {
+          "id": "recall",
+          "label": "Share of atypical cases caught",
+          "format": "pct",
+          "higher_is_better": true,
+          "original": 0.43139,
+          "federated": 0.43035,
+          "difference": -0.00104,
+          "ci": [
+            -0.02014,
+            0.01753
+          ],
+          "verdict": "no clear difference",
+          "per_hospital": [
+            {
+              "hospital": "H001",
+              "rows": 1792,
+              "original": 0.40714,
+              "federated": 0.42143
+            },
+            {
+              "hospital": "H002",
+              "rows": 1446,
+              "original": 0.41053,
+              "federated": 0.41053
+            },
+            {
+              "hospital": "H003",
+              "rows": 1730,
+              "original": 0.40594,
+              "federated": 0.38614
+            },
+            {
+              "hospital": "H004",
+              "rows": 1518,
+              "original": 0.58252,
+              "federated": 0.52427
+            },
+            {
+              "hospital": "H005",
+              "rows": 1597,
+              "original": 0.40385,
+              "federated": 0.34615
+            },
+            {
+              "hospital": "H006",
+              "rows": 1171,
+              "original": 0.47826,
+              "federated": 0.53623
+            },
+            {
+              "hospital": "H007",
+              "rows": 1118,
+              "original": 0.33333,
+              "federated": 0.375
+            },
+            {
+              "hospital": "H008",
+              "rows": 1199,
+              "original": 0.43617,
+              "federated": 0.40426
+            },
+            {
+              "hospital": "H009",
+              "rows": 988,
+              "original": 0.49254,
+              "federated": 0.49254
+            },
+            {
+              "hospital": "H010",
+              "rows": 1596,
+              "original": 0.38462,
+              "federated": 0.44444
+            }
+          ],
+          "hospitals_better": 4
+        },
+        {
+          "id": "false_alarm_rate",
+          "label": "False alarms on ordinary patients (a calibration target)",
+          "format": "pct",
+          "higher_is_better": null,
+          "original": 0.02115,
+          "federated": 0.0166,
+          "difference": -0.00455,
+          "ci": null,
+          "verdict": null,
+          "per_hospital": [
+            {
+              "hospital": "H001",
+              "rows": 1792,
+              "original": 0.023,
+              "federated": 0.01695
+            },
+            {
+              "hospital": "H002",
+              "rows": 1446,
+              "original": 0.01925,
+              "federated": 0.0185
+            },
+            {
+              "hospital": "H003",
+              "rows": 1730,
+              "original": 0.0264,
+              "federated": 0.01351
+            },
+            {
+              "hospital": "H004",
+              "rows": 1518,
+              "original": 0.02049,
+              "federated": 0.01555
+            },
+            {
+              "hospital": "H005",
+              "rows": 1597,
+              "original": 0.01942,
+              "federated": 0.01942
+            },
+            {
+              "hospital": "H006",
+              "rows": 1171,
+              "original": 0.02359,
+              "federated": 0.02087
+            },
+            {
+              "hospital": "H007",
+              "rows": 1118,
+              "original": 0.02294,
+              "federated": 0.01434
+            },
+            {
+              "hospital": "H008",
+              "rows": 1199,
+              "original": 0.01448,
+              "federated": 0.01629
+            },
+            {
+              "hospital": "H009",
+              "rows": 988,
+              "original": 0.02063,
+              "federated": 0.01629
+            },
+            {
+              "hospital": "H010",
+              "rows": 1596,
+              "original": 0.01961,
+              "federated": 0.01487
+            }
+          ],
+          "hospitals_better": null
+        }
+      ],
+      "facts": [
+        {
+          "label": "Trained on",
+          "original": "Every hospital's patients pooled in one place",
+          "federated": "Counts, sums and histograms from each hospital; never patient rows"
+        },
+        {
+          "label": "Patients behind the fit",
+          "original": "48,127",
+          "federated": "48,122"
+        },
+        {
+          "label": "Model file",
+          "original": "0.05 MB",
+          "federated": "0.05 MB"
+        }
+      ],
+      "notes": [
+        "Both detectors are asked about the same held-out patients and are told each patient's real diagnosis.",
+        "Each detector sets its own alert threshold to flag about 5% of ordinary patients, so the false-alarm rate is a target, not a result, and it is not ranked. Compare the share caught at that rate.",
+        "The federated version matches pooled statistics exactly where they are sums and to about 1% where they are histogram quantiles."
+      ]
+    },
+    {
+      "id": "outbreak",
+      "title": "Outbreak detector",
+      "kind": "recorded",
+      "rows": [
+        {
+          "id": "episodes",
+          "label": "Held-out outbreaks",
+          "format": "int",
+          "higher_is_better": null,
+          "original": 21,
+          "federated": 21
+        },
+        {
+          "id": "linked_episodes",
+          "label": "\u2026that spread between hospitals",
+          "format": "int",
+          "higher_is_better": null,
+          "original": 14,
+          "federated": 14
+        },
+        {
+          "id": "linked_alert_recall",
+          "label": "Spreading outbreaks alerted",
+          "format": "pct",
+          "higher_is_better": true,
+          "original": 0.429,
+          "federated": 0.429
+        },
+        {
+          "id": "alert_recall",
+          "label": "All outbreaks alerted",
+          "format": "pct",
+          "higher_is_better": true,
+          "original": 0.381,
+          "federated": 0.381
+        },
+        {
+          "id": "median_delay_days",
+          "label": "Median days to alert",
+          "format": "days",
+          "higher_is_better": false,
+          "original": 8.0,
+          "federated": 8.0
+        },
+        {
+          "id": "notifications",
+          "label": "Notifications sent",
+          "format": "int",
+          "higher_is_better": null,
+          "original": 4,
+          "federated": 4
+        },
+        {
+          "id": "notification_precision",
+          "label": "Notifications that were correct",
+          "format": "pct",
+          "higher_is_better": true,
+          "original": 0.75,
+          "federated": 0.75
+        },
+        {
+          "id": "false_notifications_per_year",
+          "label": "False notifications per year",
+          "format": "num1",
+          "higher_is_better": false,
+          "original": 4.0,
+          "federated": 4.0
+        }
+      ],
+      "test_days": [
+        "2025-10-01",
+        "2025-12-30"
+      ],
+      "facts": [
+        {
+          "label": "Trained on",
+          "original": "Every hospital's daily counts pooled in one place",
+          "federated": "Daily counts and labelled outbreaks sent by each hospital"
+        },
+        {
+          "label": "Local flagger used for the counts",
+          "original": "The original atypical detector",
+          "federated": "The federated atypical detector"
+        }
+      ],
+      "notes": [
+        "These are the held-out numbers each pipeline recorded when it was calibrated, not recomputed here. They cover the same days.",
+        "Only 21 labelled outbreaks fall in the held-out period, so there are few events to compare and no interval can be given.",
+        "The detector works on daily counts, so federating its calibration changes little."
+      ]
+    }
+  ]
+}

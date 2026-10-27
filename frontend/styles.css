@@ -297,6 +297,18 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 700; line-height: 1.25; lett
 .fl-readout span b { color: var(--ink); }
 .fl-privacy-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
 
+/* ---- model comparison: original = orange square, federated = blue circle (shape and colour) ---- */
+.cmp-key { display: inline-block; width: 11px; height: 11px; flex: 0 0 11px; margin-right: 7px; vertical-align: -1px; }
+.cmp-key.original { background: #c4571f; border-radius: 2px; }
+.cmp-key.federated { background: #1d5fa4; border-radius: 50%; }
+.fl-tip-key.original { border-top-color: #e58a58; }
+.cmp-lead { max-width: 720px; margin: 0 0 14px; font-size: 14px; line-height: 1.6; }
+.cmp-table small { display: block; margin: 1px 0 0; }
+.cmp-verdict { font-weight: 600; white-space: nowrap; }
+.cmp-verdict.better { color: var(--green); }
+.cmp-verdict.worse { color: var(--red); }
+.cmp-verdict.tie, .cmp-verdict.none { color: var(--muted); font-weight: 500; }
+
 .toast { position: fixed; right: 24px; bottom: 24px; z-index: 5; max-width: min(400px, calc(100% - 48px)); padding: 12px 16px; background: #27303a; color: white; border-left: 3px solid var(--amber); border-radius: 3px; font-size: 13px; line-height: 1.5; }
 
 /* ---- narrow screens: the sidebar becomes a row above the content ---- */

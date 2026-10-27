@@ -3,7 +3,8 @@
 Trains the disease, treatment, atypical-case and outbreak models across hospitals H001–H010 with
 [Flower](https://flower.ai), so every hospital benefits from all hospitals' data without any patient row
 leaving its hospital. Nothing in `models/objectiveA|B|E` is modified: their code is loaded as it is, and
-the federated models are written next to this README, never over the production ones.
+the federated models are written next to this README, never over the production ones. The `api.py` files of A, B and
+E1/E2 load them from `model/<task>/` (see "In the web app").
 
 | Task | Model | How it is federated | Output |
 |---|---|---|---|
@@ -92,7 +93,25 @@ It reads `GET /api/federated/overview` (`models/objectiveC/api.py`), which only 
 with no report shows the command to train it. The replay needs a run made after turn history was added to the
 training (older models show results without the replay).
 
-Not wired in: the web app's own prediction endpoints still use the production models, not the federated ones.
+The prediction endpoints of the other tabs load the federated files from `model/<task>/` (the `api.py` of
+Objectives A, B, E1 and E2 point there). The original, centrally trained files are still in each objective's own
+`model/` folder, untouched, and `predict.py` / `train.py` still use them.
+
+### Original vs federated comparison
+
+The **Model comparison** tab (`frontend/comparison.js`, `GET /api/federated/comparison`) scores the original models
+and the federated ones on the same held-out patients, in total and per hospital, with a paired-bootstrap 95%
+interval for each difference. The numbers come from `models/objectiveC/model/comparison.json`, written by:
+
+```bash
+python -m carepath_fl.compare          # from models/objectiveC, CAREPATH_ROOT set; ~30 s, trains nothing
+```
+
+It loads both sets the way the web app does and checks that the originals score what their own training recorded
+(the run fails if they do not). A difference is called better or worse only when its interval excludes zero. The
+outbreak detector has no per-patient score, so its two recorded held-out results are shown side by side. Run it
+again after retraining any model. Current picture: the federated models are not distinguishable from the originals
+on 7 of the 8 measures that can be tested, and better on atypical-case AUC (+0.005).
 
 ## What leaves a hospital, and what is not protected
 
@@ -115,5 +134,4 @@ certificates and keys are prototype credentials for a private network.
 
 ## Not done
 
-The web app's prediction endpoints do not use these models; promoting one means copying its files over the
-production model directory by hand. There is no scheduler for retraining.
+There is no scheduler for retraining.

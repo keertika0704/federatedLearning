@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
   <script src="/surveillance.js" defer></script>
-  <script src="/federated.js" defer></script>
+  <script src="/comparison.js" defer></script>
 </head>
 <body>
   <div class="app">
@@ -22,7 +22,8 @@
         <button class="topnav-tab active" type="button" data-tab="assessment" data-title="Patient assessment" aria-current="page">Patient assessment</button>
         <p class="nav-group">Monitoring</p>
         <button class="topnav-tab" type="button" data-tab="surveillance" data-title="Outbreak surveillance">Outbreak surveillance <span class="tab-badge hidden" id="alert-badge" aria-label="open alerts">0</span></button>
-        <button class="topnav-tab" type="button" data-tab="federated" data-title="Federated learning">Federated learning</button>
+        
+        <button class="topnav-tab" type="button" data-tab="comparison" data-title="Model comparison">Model comparison</button>
       </nav>
       <p class="sidebar-foot">Decision support for qualified healthcare professionals. Not a diagnosis.</p>
     </aside>
@@ -215,6 +216,18 @@
           <section class="surv-section hidden" id="fl-replay"></section>
           <section class="surv-section" id="fl-privacy"></section>
           <p class="surv-note" id="fl-scope"></p>
+        </section>
+
+        <section class="view comparison-view hidden" id="comparison-view" aria-labelledby="cmp-title">
+          <div class="page-intro">
+            <h1 id="cmp-title">Original vs federated models</h1>
+            <p class="intro-copy">The original models were trained on every hospital's patients pooled in one place. The federated ones were trained without pooling. Here both are scored on the same patients they never saw.</p>
+          </div>
+          <p class="form-error hidden" id="cmp-error" role="alert"></p>
+          <section class="surv-section" id="cmp-summary" aria-live="polite"></section>
+          <div class="fl-tasks" id="cmp-tasks" role="group" aria-label="Choose a model"></div>
+          <section class="surv-section" id="cmp-detail" aria-live="polite"></section>
+          <p class="surv-note" id="cmp-scope"></p>
         </section>
       </main>
     </div>

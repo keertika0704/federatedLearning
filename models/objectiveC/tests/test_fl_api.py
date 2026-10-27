@@ -83,3 +83,22 @@ def test_response_exposes_no_node_ids_keys_or_paths(client):
     text = client.get("/api/federated/overview").text.lower()
     for banned in ("node_id", "registry", "private key", "secrets", "begin openssh", "/users/", "api_key"):
         assert banned not in text
+
+
+def test_comparison_requires_the_api_key(app):
+    assert TestClient(app).get("/api/federated/comparison").status_code == 401
+
+
+def test_comparison_without_a_file_says_how_to_make_it(client, monkeypatch, tmp_path):
+    monkeypatch.setattr(api, "MODEL_DIR", tmp_path)
+    body = client.get("/api/federated/comparison").json()
+    assert body["available"] is False and "carepath_fl.compare" in body["hint"] and body["tasks"] == []
+
+
+@pytest.mark.skipif(not (api.MODEL_DIR / "comparison.json").is_file(), reason="comparison not generated")
+def test_comparison_adds_each_models_question_and_names_the_hospitals(client):
+    body = client.get("/api/federated/comparison").json()
+    assert body["available"] and len(body["hospitals"]) == 10
+    assert [t["id"] for t in body["tasks"]] == TASK_IDS
+    assert all(t["question"] and t["model"] for t in body["tasks"])
+    assert body["tasks"][0]["metrics"][0]["per_hospital"][0]["hospital"] == "H001"

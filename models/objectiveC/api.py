@@ -5,7 +5,8 @@ It reads what the federated training already wrote (model/<task>/report.json and
 plain-language description of what each hospital shares. It never imports Flower and never trains or
 exposes any model, patient data, node id or key material.
 
-    GET /api/federated/overview
+    GET /api/federated/overview      federated results and what each hospital shares
+    GET /api/federated/comparison    original (centrally trained) models against the federated ones (carepath_fl.compare)
 
 Exposes a FastAPI `router`, mounted in backend/main.py.
 """
@@ -116,7 +117,7 @@ LIMITS = [
      "detail": "73% of daily hospital-by-disease counts are below 3; hiding them would remove the outbreak signal."},
 ]
 SCOPE_NOTE = ("These results come from a simulation on synthetic data. The real-deployment demo runs every "
-              "hospital on one machine. The web app's own models are not yet replaced by the federated ones.")
+              "hospital on one machine. The web app's prediction tabs load the federated models from this folder.")
 
 
 def _read_json(path: Path):
@@ -208,6 +209,23 @@ def _task(spec: dict) -> dict:
         out["settings"] = {"turns": fed.get("turns"), "local_iters": fed.get("local_iters"),
                            "iterations": fed.get("iterations")}
     return out
+
+
+COMPARE_HINT = "Not generated yet. Run, from models/objectiveC with CAREPATH_ROOT set: python -m carepath_fl.compare"
+
+
+@router.get("/api/federated/comparison", dependencies=[Depends(require_api_key)])
+def comparison():
+    """The original (centrally trained) models against the federated ones, as written by carepath_fl.compare."""
+    path = MODEL_DIR / "comparison.json"
+    data = _read_json(path)
+    if not data:
+        return {"available": False, "hint": COMPARE_HINT, "hospitals": hospitals(), "tasks": []}
+    spec = {t["id"]: t for t in TASKS}
+    tasks = [{**t, "question": spec[t["id"]]["question"], "model": spec[t["id"]]["model"]}
+             for t in data["tasks"] if t["id"] in spec]
+    return {"available": True, "generated_at": data.get("generated_at"), "resamples": data.get("resamples"),
+            "updated": _updated(path), "hospitals": hospitals(), "tasks": tasks}
 
 
 @router.get("/api/federated/overview", dependencies=[Depends(require_api_key)])
