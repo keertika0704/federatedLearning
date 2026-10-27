@@ -25,6 +25,7 @@ Alert fields: disease_name, kind (known_disease | possible_novel), scope (region
 excess-symptom signatures agree), signature (the symptoms the extra cases bring), status, first_seen, last_seen.
 """
 
+import json
 import sys
 from datetime import date
 from pathlib import Path
@@ -46,7 +47,12 @@ MAX_SUMMARY_ROWS = 2000
 NO_DATA = "No node summaries yet. Build them first:  python models/objectiveB/node.py --build"
 
 store = Store()
-detector = OutbreakDetector()              # loads model/outbreak_model.json; falls back to defaults when untrained
+# Federated thresholds trained by Objective C; falls back to defaults when untrained. OutbreakDetector reads its
+# meta.json (shown by /health) from B's own folder whatever the path, so the federated one is loaded here.
+FEDERATED_DIR = PROJECT_ROOT / "models" / "objectiveC" / "model" / "outbreak"
+detector = OutbreakDetector(path=FEDERATED_DIR / "outbreak_model.json")
+if (FEDERATED_DIR / "meta.json").is_file():
+    detector.meta = json.loads((FEDERATED_DIR / "meta.json").read_text())
 router = APIRouter()
 
 

@@ -13,7 +13,7 @@ PROJECT_ROOT = next(
     parent for parent in Path(__file__).resolve().parents
     if (parent / "models" / "objectiveE").is_dir()
 )
-DISEASE_SOURCE = PROJECT_ROOT / "models" / "objectiveE" / "disease_prediction"
+FEDERATED_MODELS = PROJECT_ROOT / "models" / "objectiveC" / "model"
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -23,16 +23,16 @@ from backend.security import require_api_key  # noqa: E402
 log = logging.getLogger("uvicorn.error")
 
 # ---------- Step 1: load model once at startup ----------
-# Pinned to the model next to this file. Deliberately NOT configurable via env var,
+# Pinned to the federated disease model trained by Objective C. Deliberately NOT configurable via env var,
 # so another objective's model can never be loaded by accident.
-MODEL_DIR = (DISEASE_SOURCE / "model").resolve()
-if not MODEL_DIR.is_relative_to(DISEASE_SOURCE.resolve()):
-    raise RuntimeError(f"Model dir {MODEL_DIR} is outside {DISEASE_SOURCE}. Refusing to load.")
+MODEL_DIR = (FEDERATED_MODELS / "disease").resolve()
+if not MODEL_DIR.is_relative_to(FEDERATED_MODELS.resolve()):
+    raise RuntimeError(f"Model dir {MODEL_DIR} is outside {FEDERATED_MODELS}. Refusing to load.")
 for _f in ("model.json", "meta.json"):
     if not (MODEL_DIR / _f).is_file():
         raise RuntimeError(
-            f"Missing {MODEL_DIR / _f}. Train first:\n"
-            f"  python {DISEASE_SOURCE / 'train.py'} --data <train.csv> --test <test.csv>"
+            f"Missing {MODEL_DIR / _f}. Train the federated model first (from the project root):\n"
+            f"  flwr run models/objectiveC --run-config 'task=\"disease\"'"
         )
 META = json.loads((MODEL_DIR / "meta.json").read_text())
 MODEL = XGBClassifier()

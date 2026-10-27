@@ -48,7 +48,8 @@ PATIENT_FIELDS = set(SYMPTOMS) | set(VITALS) | {"age", "gender"}   # age/gender 
 MAX_BATCH = 500
 
 try:
-    detector = AtypicalDetector()          # loads model/atypical_model.json once at startup
+    # loads the federated model trained by Objective C once at startup
+    detector = AtypicalDetector(path=PROJECT_ROOT / "models" / "objectiveC" / "model" / "atypical" / "atypical_model.json")
 except SystemExit as e:                    # predict.py exits with a message when the model file is missing
     raise RuntimeError(str(e)) from None
 

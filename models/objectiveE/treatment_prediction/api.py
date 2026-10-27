@@ -48,7 +48,8 @@ class TreatmentPlanRequest(BaseModel):
     top_k: int = Field(3, ge=1, le=10)
 
 
-recommender = TreatmentRecommender()   # loads model/ once at startup
+# loads the federated model trained by Objective C once at startup
+recommender = TreatmentRecommender(model_dir=PROJECT_ROOT / "models" / "objectiveC" / "model" / "treatment")
 
 
 class RecommendRequest(BaseModel):
@@ -61,7 +62,7 @@ class RecommendRequest(BaseModel):
 @router.get("/api/treatment/health")
 def health():
     m = recommender.meta
-    return {"status": "ok", "model": m["model"], "trained_at": m["trained_at"],
+    return {"status": "ok", "model": m["model"], "trained_at": m.get("trained_at"),
             "xgboost_version": m["xgboost_version"], "patient_fields": recommender.patient_cols,
             "metrics": m.get("metrics")}
 
