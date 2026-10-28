@@ -260,9 +260,12 @@
     try {
       const result = await post("/scan", { as_of: day });
       const fresh = result.alerts.filter(a => a.change === "new" || a.change === "escalated");
-      $("#surv-status").textContent = result.alerts.length
-        ? `As of ${result.as_of}: ${result.alerts.length} active alert${result.alerts.length === 1 ? "" : "s"}${result.new ? `, ${result.new} new` : ""}.`
-        : `As of ${result.as_of}: nothing unusual across the hospitals.`;
+      const active = result.alerts.filter(a => a.status !== "resolved");
+      $("#surv-status").textContent = active.length
+        ? `As of ${result.as_of}: ${active.length} active alert${active.length === 1 ? "" : "s"}${result.new ? `, ${result.new} new` : ""}.`
+        : result.alerts.length
+          ? `As of ${result.as_of}: this matches a past outbreak already in the history, so nothing was added.`
+          : `As of ${result.as_of}: nothing unusual across the hospitals.`;
       if (fresh.length) toast(`${fresh[0].change === "new" ? "New" : "Escalated"} outbreak alert: ${fresh[0].title}`);
       await Promise.all([refreshAlerts(), refreshTrends(result.as_of)]);
     } catch (error) {
@@ -282,7 +285,8 @@
     loaded = true;
     try {
       const health = await api("/health");
-      const { from, to, hospitals } = health.summaries;
+      const { from, to, hospitals, shared_to: sharedTo } = health.summaries;
+      const latest = sharedTo || to;   // a lone node (this clinic's live assessments) cannot be cross-checked, so it never sets the default day
       detectorResolveDays = (health.thresholds && health.thresholds.resolve_after_days) || detectorResolveDays;
       const input = $("#surv-date");
       if (!from) {
@@ -291,9 +295,9 @@
         return;
       }
       input.min = from;
-      input.max = to;
-      input.value = input.value || to;
-      $("#surv-status").textContent = `${hospitals} hospitals reporting, ${from} to ${to}.`;
+      input.max = latest;
+      input.value = input.value || latest;
+      $("#surv-status").textContent = `${hospitals} hospitals reporting, ${from} to ${latest}.`;
       const m = health.metrics && health.metrics.test;
       $("#surv-note").textContent = m
         ? `On a held-out period the detector sent ${m.notifications} notifications (${Math.round(100 * m.notification_precision)}% correct) and caught ${Math.round(100 * m.linked_alert_recall)}% of outbreaks that spread between hospitals, a median ${m.median_delay_days} days after they began. Small or slow outbreaks can go unnoticed.`

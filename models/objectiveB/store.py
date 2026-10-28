@@ -97,6 +97,14 @@ class Store:
             r = c.execute("SELECT MIN(day) lo, MAX(day) hi, COUNT(DISTINCT hospital_id) h FROM node_summaries").fetchone()
         return (r["lo"], r["hi"], r["h"]) if r["lo"] else (None, None, 0)
 
+    def last_shared_day(self, min_hospitals=2):
+        """Latest day that at least `min_hospitals` nodes reported, or None. A lone node (e.g. this clinic's live
+        assessments) cannot be cross-checked, so the dashboard and default scans use this day, not the latest."""
+        with self._conn() as c:
+            r = c.execute("SELECT MAX(day) FROM (SELECT day FROM node_summaries GROUP BY day "
+                          "HAVING COUNT(DISTINCT hospital_id) >= ?)", (min_hospitals,)).fetchone()
+        return r[0]
+
     # ------------------------------------------------------------ alerts
     @staticmethod
     def _row(r):
@@ -108,13 +116,20 @@ class Store:
     def upsert_alert(self, alert, rebuild=None):
         """Merge `alert` into a live alert for the same disease seen within MERGE_WITHIN_DAYS, else insert it.
         `rebuild(alert)` (detect.describe) refreshes regions / scope / severity / title / message from the merged sites.
-        Returns (alert with id/status, change) where change is 'new', 'escalated' or 'updated'."""
+        Returns (alert with id/status, change) where change is 'new', 'escalated', 'updated', or 'known' (the day is
+        already inside a resolved outbreak of the same disease; nothing is stored)."""
         day = alert["day"]
         floor = (pd.Timestamp(day) - pd.Timedelta(days=MERGE_WITHIN_DAYS)).strftime("%Y-%m-%d")
         with self._conn() as c:
             r = c.execute("SELECT * FROM alerts WHERE disease_key=? AND status IN ('open','acknowledged') "
                           "AND last_seen>=? ORDER BY id DESC LIMIT 1", (alert["disease_key"], floor)).fetchone()
             if r is None:
+                # Replaying a day an already-resolved outbreak covers finds the same outbreak again: it is in the history
+                # once, so report it as known instead of adding a duplicate.
+                past = c.execute("SELECT * FROM alerts WHERE disease_key=? AND status='resolved' AND first_seen<=? "
+                                 "AND last_seen>=? ORDER BY id DESC LIMIT 1", (alert["disease_key"], day, day)).fetchone()
+                if past is not None:
+                    return self._row(past), "known"
                 cur = c.execute("INSERT INTO alerts (disease_key,status,severity,first_seen,last_seen,created_at,updated_at,"
                                 "payload) VALUES (?,?,?,?,?,?,?,?)",
                                 (alert["disease_key"], "open", alert["severity"], day, day, _now(), _now(), json.dumps(alert)))

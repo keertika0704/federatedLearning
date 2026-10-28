@@ -1,0 +1,84 @@
+flowchart TB
+  classDef ext fill:#fff,stroke:#555,stroke-dasharray:4 3
+  classDef ui fill:#e8f0fe,stroke:#4a6fa5
+  classDef api fill:#e6f4ea,stroke:#3d8b5a
+  classDef ml fill:#fff4e0,stroke:#c98a1b
+  classDef store fill:#f3e8fd,stroke:#8a55b5
+  classDef fl fill:#fde8e8,stroke:#b55555
+
+  Clinician(["Clinician (browser)"]):::ext
+  Operator(["ML engineer (CLI)"]):::ext
+  Webhook(["Alert webhook (optional, OUTBREAK_WEBHOOK_URL)"]):::ext
+
+  subgraph FE["Presentation layer: static web app served by FastAPI"]
+    direction LR
+    T1["Patient assessment<br/>app.js"]:::ui
+    T2["Past assessments<br/>assessments.js"]:::ui
+    T3["Outbreak surveillance<br/>surveillance.js"]:::ui
+    T4["Federated results<br/>federated.js"]:::ui
+    T5["Model comparison<br/>comparison.js"]:::ui
+  end
+
+  subgraph BE["Application layer: FastAPI backend.main (single process)"]
+    direction TB
+    MW["Middleware: CORS, Cache-Control no-cache<br/>POST /ui/session issues carepath_session cookie, localhost only"]:::api
+    SEC["backend.security.require_api_key<br/>X-API-Key header or UI session cookie"]:::api
+    subgraph RT["Routers"]
+      direction LR
+      R1["E1 disease<br/>POST /predict"]:::api
+      R2["E2 treatment<br/>POST /recommend-treatment"]:::api
+      R3["A atypical<br/>POST /api/atypical/assess"]:::api
+      R4["B outbreak<br/>/api/outbreak/*"]:::api
+      R5["C federated<br/>GET /api/federated/*"]:::api
+      R6["assessments<br/>/api/assessments*"]:::api
+    end
+  end
+
+  subgraph ML["Model layer: loaded once at API start-up"]
+    direction LR
+    M1["XGBoost disease classifier"]:::ml
+    M2["TreatmentRecommender<br/>XGBoost success + recovery days"]:::ml
+    M3["AtypicalDetector<br/>symptom and vitals surprise scores"]:::ml
+    M4["OutbreakDetector<br/>Panel, Stats, consensus"]:::ml
+  end
+
+  subgraph DS["Data layer"]
+    direction LR
+    D1[("assessments.db<br/>SQLite, no patient name")]:::store
+    D2[("outbreak.db<br/>SQLite: daily count summaries + alerts")]:::store
+    D3[("Model files<br/>models/objectiveC/model/task/*.json")]:::store
+    D4[("Reports<br/>report.json, comparison.json")]:::store
+  end
+
+  subgraph FLL["Federated layer: Flower, offline, run by the operator"]
+    direction LR
+    SL["SuperLink + ServerApp<br/>FedXgbCyclic, run_protocol<br/>NodeRegistry identity checks, TLS"]:::fl
+    subgraph NODES["Hospital nodes H001 to H010 (SuperNode + ClientApp)"]
+      direction LR
+      N1["local partition<br/>H001"]:::fl
+      N2["local partition<br/>H002"]:::fl
+      N3["local partition<br/>H010"]:::fl
+    end
+    CMP["carepath_fl.compare / report<br/>federated vs local vs central"]:::fl
+  end
+
+  Clinician --> FE
+  FE -- "HTTPS JSON" --> MW --> SEC --> RT
+  R1 --> M1
+  R2 --> M2
+  R3 --> M3
+  R4 --> M4
+  R6 --> D1
+  R6 -- "counts only" --> D2
+  R4 <--> D2
+  R5 --> D4
+  R4 -- "new or escalated alert" --> Webhook
+  M1 -. "loads" .-> D3
+  M2 -. "loads" .-> D3
+  M3 -. "loads" .-> D3
+  M4 -. "loads" .-> D3
+  Operator --> SL
+  Operator --> CMP
+  SL <-- "model updates and summary statistics only" --> NODES
+  SL -- "writes federated model" --> D3
+  CMP --> D4

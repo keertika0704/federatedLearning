@@ -1,0 +1,66 @@
+flowchart LR
+  classDef actor fill:#fff,stroke:#333,stroke-width:2px
+  classDef uc fill:#e8f0fe,stroke:#4a6fa5
+  classDef sys fill:#fff4e0,stroke:#c98a1b
+
+  CL["Clinician"]:::actor
+  EN["ML engineer"]:::actor
+  HN["Hospital node<br/>(system actor)"]:::actor
+  WH["Alert webhook<br/>(external system)"]:::actor
+
+  subgraph SYS["CarePath: federated clinical decision support"]
+    direction TB
+    subgraph A["Patient care"]
+      UC1(["Enter patient details<br/>and symptoms"]):::uc
+      UC2(["Predict disease"]):::uc
+      UC3(["Flag atypical or<br/>novel presentation"]):::uc
+      UC4(["Get ranked treatment plan"]):::uc
+      UC5(["Change severity<br/>and re-plan"]):::uc
+      UC6(["Browse past assessments"]):::uc
+    end
+    subgraph B["Outbreak surveillance"]
+      UC7(["Monitor hospital grid<br/>and trends"]):::uc
+      UC8(["Replay a day / run scan"]):::uc
+      UC9(["Acknowledge alert"]):::uc
+      UC10(["Review past outbreaks"]):::uc
+      UC11(["Share daily counts"]):::sys
+      UC12(["Notify of new<br/>or escalated alert"]):::sys
+    end
+    subgraph C["Federated learning"]
+      UC13(["View federated results"]):::uc
+      UC14(["View model comparison"]):::uc
+      UC15(["Train federated model"]):::uc
+      UC16(["Generate credentials<br/>and register hospitals"]):::uc
+      UC17(["Verify node identity<br/>and security"]):::sys
+      UC18(["Train on local data<br/>and send updates"]):::sys
+      UC19(["Compare federated vs<br/>local vs central"]):::uc
+    end
+  end
+
+  CL --- UC1
+  CL --- UC2
+  CL --- UC4
+  CL --- UC5
+  CL --- UC6
+  CL --- UC7
+  CL --- UC8
+  CL --- UC9
+  CL --- UC10
+  CL --- UC13
+  CL --- UC14
+  EN --- UC15
+  EN --- UC16
+  EN --- UC19
+  HN --- UC11
+  HN --- UC18
+  UC12 --- WH
+
+  UC2 -. "include" .-> UC1
+  UC2 -. "include" .-> UC3
+  UC4 -. "include" .-> UC2
+  UC5 -. "extend" .-> UC4
+  UC8 -. "include" .-> UC11
+  UC8 -. "extend: new alert" .-> UC12
+  UC15 -. "include" .-> UC17
+  UC15 -. "include" .-> UC18
+  UC4 -. "include: log and share counts" .-> UC11

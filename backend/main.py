@@ -15,6 +15,7 @@ from models.objectiveE.treatment_prediction.api import router as treatment_route
 from models.objectiveA.api import router as atypical_router
 from models.objectiveB.api import router as outbreak_router
 from models.objectiveC.api import router as federated_router
+from backend.assessments import router as assessments_router
 
 app = FastAPI(title="Patient Disease and Treatment API", version="1.0.0", docs_url=None)
 app.include_router(disease_router)
@@ -22,6 +23,7 @@ app.include_router(treatment_router)
 app.include_router(atypical_router)
 app.include_router(outbreak_router)
 app.include_router(federated_router)
+app.include_router(assessments_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.getenv(
@@ -30,6 +32,15 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "X-API-Key"],
 )
+
+
+@app.middleware("http")
+async def revalidate_frontend(request: Request, call_next):
+    """The web app's files are served as they are on disk: the browser must check for a newer copy, not reuse a stale one."""
+    response = await call_next(request)
+    if request.method == "GET" and not request.url.path.startswith("/api/"):
+        response.headers.setdefault("Cache-Control", "no-cache")
+    return response
 
 
 @app.post("/ui/session", status_code=204, include_in_schema=False)

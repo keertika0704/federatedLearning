@@ -6,7 +6,8 @@ OBJECTIVE_E_API_KEY set in .env and node summaries built by `python models/objec
     uvicorn models.objectiveB.api:app --reload --port 8004
 
 Endpoints (all but /health need the X-API-Key header or the UI session cookie):
-    GET  /api/outbreak/health              thresholds, test metrics, the day range held in the store
+    GET  /api/outbreak/health              thresholds, test metrics, the day range held in the store (`shared_to`: the
+                                           latest day at least two hospitals reported, the default day for scans)
     POST /api/outbreak/scan                {"as_of": "2025-11-10"} -> detect as of that day (default: latest), store the
                                            alerts, notify on new / escalated ones. Replaying a past day sees no future data.
     GET  /api/outbreak/alerts?status=open  the alert feed (status: open | acknowledged | resolved; omit for all)
@@ -91,7 +92,7 @@ def health():
     m = detector.meta
     return {"status": "ok", "trained": detector.trained, "model": m.get("model"), "trained_at": m.get("trained_at"),
             "thresholds": detector.p, "metrics": m.get("metrics"), "note": m.get("note"),
-            "summaries": {"from": lo, "to": hi, "hospitals": hospitals},
+            "summaries": {"from": lo, "to": hi, "hospitals": hospitals, "shared_to": store.last_shared_day()},
             "open_alerts": len(store.list_alerts("open"))}
 
 
@@ -100,7 +101,8 @@ def scan(req: ScanRequest):
     if store.day_range()[0] is None:
         raise HTTPException(409, NO_DATA)
     try:
-        return run_scan(store, detector, req.as_of.isoformat() if req.as_of else None, req.notify)
+        as_of = req.as_of.isoformat() if req.as_of else store.last_shared_day()
+        return run_scan(store, detector, as_of, req.notify)
     except ValueError as e:
         raise _bad_date(e)
 
@@ -121,9 +123,10 @@ def acknowledge(alert_id: int):
 
 @router.get("/api/outbreak/trends", dependencies=[Depends(require_api_key)])
 def trends(as_of: Optional[date] = None):
-    panel = _panel(as_of.isoformat() if as_of else None)
+    day = as_of.isoformat() if as_of else store.last_shared_day()
+    panel = _panel(day)
     try:
-        return detector.trends(panel, as_of.isoformat() if as_of else None)
+        return detector.trends(panel, day)
     except ValueError as e:
         raise _bad_date(e)
 

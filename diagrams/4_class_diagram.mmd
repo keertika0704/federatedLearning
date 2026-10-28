@@ -1,0 +1,172 @@
+classDiagram
+  direction LR
+
+  class FastAPIApp {
+    +include_router(router)
+    +create_ui_session()
+    +revalidate_frontend()
+  }
+  class Security {
+    +API_KEY: str
+    +UI_SESSION_TOKEN: str
+    +require_api_key(key, cookie)
+  }
+  class AssessmentIn {
+    +age: int
+    +gender: str
+    +vitals: dict
+    +symptoms: list
+    +disease_id: str
+    +confidence: float
+    +atypical_flag: bool
+    +novelty_flag: bool
+    +severity_id: str
+    +treatment: str
+  }
+  class SeverityIn {
+    +severity_id: str
+    +treatment: str
+  }
+  class AssessmentsRouter {
+    +log_assessment(body)
+    +set_severity(id, body)
+    +list_assessments()
+    +clinic_summary()
+    -_day_counts(conn, day)
+    -_push_summary(counts, day)
+  }
+
+  class AtypicalDetector {
+    +p: dict
+    +diseases: list
+    +infer_disease(S, V)
+    +score(df)
+    +reasons(s_row, v_row, k)
+    +assess(patient, disease_id)
+    +assess_df(df)
+  }
+  class TreatmentRecommender {
+    +success_model: XGBClassifier
+    +recovery_model: XGBRegressor
+    +feature_cols: list
+    +candidates(disease, severity)
+    +recommend(patient, disease, severity, top_k)
+    +top_picks(df)
+  }
+  class DiseaseClassifier {
+    <<XGBoost model + meta>>
+    +predict(patient)
+  }
+
+  class NodeSummarizer {
+    +hospital_id: str
+    +region: str
+    +detector: AtypicalDetector
+    +summarize(df)
+  }
+  class Store {
+    +path: Path
+    +put_summaries(df)
+    +load_summaries(as_of)
+    +last_shared_day()
+    +upsert_alert(alert)
+    +resolve_stale(as_of, days)
+    +list_alerts(status)
+    +acknowledge(id)
+  }
+  class Panel {
+    +hospitals: list
+    +diseases: list
+    +days: DatetimeIndex
+    +n: ndarray
+    +reported: ndarray
+  }
+  class Stats {
+    +panel: Panel
+    +p: dict
+    +signals(p)
+    +signature(h, k, t)
+  }
+  class OutbreakDetector {
+    +p: dict
+    +trained: bool
+    +meta: dict
+    +alerts_at(stats, signals, t)
+    +scan_panel(panel, as_of)
+    +trends(panel, as_of)
+  }
+  class Notifier {
+    +notify(alert, change)
+  }
+
+  class FedXgbCyclic {
+    <<Flower strategy>>
+    +start(grid, initial_arrays, num_rounds)
+  }
+  class ServerApp {
+    +main(grid, context)
+    +collect_reference(grid, task)
+    +stage_caller(grid, task)
+  }
+  class ClientApp {
+    +train(msg, context)
+    +evaluate(msg, context)
+    +query(msg, context)
+  }
+  class NodeRegistry {
+    +hospital_by_node: dict
+    +from_env()
+    +check_connected(node_ids)
+    +check_complete(node_ids)
+    +check_reply(sender, claimed)
+  }
+  class IdentityError
+  class FederatedTask {
+    <<interface: carepath_fl.tasks>>
+    +MODELS
+    +COLUMNS
+    +fit_rows(df)
+    +local_train(models, df, iters, seed)
+    +local_evaluate(models, df)
+    +client_stage(stage, state, df)
+    +run_protocol(call)
+    +write_model(models, meta)
+  }
+  class DiseaseTask
+  class TreatmentTask
+  class AtypicalTask
+  class OutbreakTask
+  class Deployment {
+    +register_hospitals(hospitals)
+    +start_hospitals(hospitals)
+    +run_app(task)
+    +online_nodes()
+  }
+
+  FastAPIApp o-- AssessmentsRouter
+  FastAPIApp ..> Security : uses
+  AssessmentsRouter ..> AssessmentIn
+  AssessmentsRouter ..> SeverityIn
+  AssessmentsRouter ..> Store : pushes counts
+  NodeSummarizer --> AtypicalDetector
+  NodeSummarizer ..> Store : writes summaries
+  OutbreakDetector ..> Panel : scans
+  Stats --> Panel
+  OutbreakDetector ..> Stats
+  OutbreakDetector ..> Store : load / upsert
+  OutbreakDetector ..> Notifier
+  ServerApp --> FedXgbCyclic
+  ServerApp --> NodeRegistry
+  ServerApp ..> FederatedTask
+  ClientApp ..> FederatedTask
+  NodeRegistry ..> IdentityError : raises
+  FederatedTask <|.. DiseaseTask
+  FederatedTask <|.. TreatmentTask
+  FederatedTask <|.. AtypicalTask
+  FederatedTask <|.. OutbreakTask
+  Deployment ..> ServerApp : flwr run
+  Deployment "1" o-- "10" ClientApp : SuperNodes
+  DiseaseTask ..> DiseaseClassifier : exports
+  TreatmentTask ..> TreatmentRecommender : exports
+  AtypicalTask ..> AtypicalDetector : exports
+  OutbreakTask ..> OutbreakDetector : exports

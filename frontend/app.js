@@ -235,6 +235,7 @@ async function buildTreatmentPlan(event) {
     }
     currentAssessment.severity = severityId;
     renderResults(recommendation);
+    recordAssessment(recommendation);
     document.querySelector("#severity-view").classList.add("hidden");
     document.querySelector("#results-view").classList.remove("hidden");
     window.location.hash = "results";
@@ -247,6 +248,56 @@ async function buildTreatmentPlan(event) {
   } finally {
     button.disabled = false;
     button.querySelector("span:first-child").textContent = "Build treatment plan";
+  }
+}
+
+// ---- assessment log: every finished assessment is saved (never the patient name) for the Past assessments tab, and
+// the server turns it into counts-only summaries for outbreak surveillance.
+const NAME_KEY = "carepath_names";
+
+function rememberName(id, name) {
+  try {
+    const names = JSON.parse(sessionStorage.getItem(NAME_KEY) || "{}");
+    names[id] = name;
+    sessionStorage.setItem(NAME_KEY, JSON.stringify(names));
+  } catch { /* names are a convenience; the list falls back to the assessment number */ }
+}
+
+function sessionName(id) {
+  try { return JSON.parse(sessionStorage.getItem(NAME_KEY) || "{}")[id] || ""; } catch { return ""; }
+}
+
+async function postJson(url, payload) {
+  const response = await apiFetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(typeof body.detail === "string" ? body.detail : "The request failed.");
+  return body;
+}
+
+async function recordAssessment(recommendation) {
+  const a = currentAssessment;
+  const treatment = ((recommendation.treatments || [])[0] || {}).treatment_name || null;
+  try {
+    if (a.logId) {                       // plan rebuilt after "Change severity": update, do not count the patient twice
+      await postJson(`/api/assessments/${a.logId}/severity`, { severity_id: a.severity, treatment });
+      return;
+    }
+    const flags = a.atypical || {};
+    const vitals = Object.fromEntries(Object.keys(vitalLabels).map(key => [key, a.vitals[key]]));
+    const { id } = await postJson("/api/assessments", {
+      age: a.age, gender: a.gender, vitals, symptoms: [...selectedSymptomIds],
+      disease_id: a.prediction.disease_id, confidence: a.prediction.probability,
+      atypical_flag: Boolean(flags.atypical_flag), novelty_flag: Boolean(flags.novelty_flag), reasons: flags.reasons || [],
+      severity_id: a.severity, treatment,
+    });
+    a.logId = id;
+    rememberName(id, a.name);
+  } catch (cause) {                      // the assessment on screen is unaffected, but say it was not saved
+    const toast = document.querySelector("#toast");
+    toast.textContent = `This assessment was not saved to Past assessments: ${cause instanceof TypeError ? "the API could not be reached." : cause.message}`;
+    toast.classList.remove("hidden");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.add("hidden"), 8000);
   }
 }
 
@@ -282,22 +333,27 @@ function renderResults(recommendation) {
       }).join("")}</tbody>
     </table></div>` : `<p class="empty-state">${escapeHtml(recommendation.message || "No treatment options for this disease and severity.")}</p>`;
 
-  // vitals as a table: [label, key, unit, normal low, normal high]
+  // vitals against normal: [label, key, unit, normal low, normal high, scale low, scale high]
   const vitals = [
-    ["Temperature", "temperature", "°C", 36.1, 37.8], ["Heart rate", "heart_rate", "bpm", 60, 100],
-    ["Resp. rate", "respiratory_rate", "/min", 12, 20], ["SpO₂", "spo2", "%", 95, 100],
-    ["Systolic BP", "systolic_bp", "mmHg", 90, 120], ["Diastolic BP", "diastolic_bp", "mmHg", 60, 80],
+    ["Temperature", "temperature", "°C", 36.1, 37.8, 34, 42], ["Heart rate", "heart_rate", "bpm", 60, 100, 30, 180],
+    ["Resp. rate", "respiratory_rate", "/min", 12, 20, 5, 40], ["SpO₂", "spo2", "%", 95, 100, 70, 100],
+    ["Systolic BP", "systolic_bp", "mmHg", 90, 120, 60, 200], ["Diastolic BP", "diastolic_bp", "mmHg", 60, 80, 30, 120],
   ];
-  document.querySelector("#snapshot-vitals").innerHTML = `<table class="data-table vitals-table">
-    <thead><tr><th scope="col">Measure</th><th scope="col" class="num">Value</th><th scope="col" class="num">Normal</th></tr></thead>
-    <tbody>${vitals.map(([label, key, unit, lo, hi]) => {
-      const v = patient.vitals[key];
-      const known = v !== null && v !== undefined;
-      const out = known && (v < lo || v > hi);
-      return `<tr${out ? ' class="out"' : ""}><th scope="row">${label}</th>
-        <td class="num">${known ? `${v} ${unit}${out ? ` <small>${v < lo ? "low" : "high"}</small>` : ""}` : "Not recorded"}</td>
-        <td class="num">${lo} to ${hi}</td></tr>`;
-    }).join("")}</tbody></table>`;
+  document.querySelector("#snapshot-vitals").innerHTML = `<ul class="vital-list">${vitals.map(([label, key, unit, lo, hi, min, max]) => {
+    const v = patient.vitals[key];
+    const known = v !== null && v !== undefined;
+    const out = known && (v < lo || v > hi);
+    const at = x => Math.max(0, Math.min(100, (100 * (x - min)) / (max - min)));
+    const state = !known ? "Not recorded" : `${v} ${unit}${out ? ` <small>${v < lo ? "low" : "high"}</small>` : ""}`;
+    const spoken = known ? `${label} ${v} ${unit}, ${out ? (v < lo ? "below" : "above") : "within"} the normal range` : `${label} not recorded`;
+    return `<li class="vital-row${out ? " out" : ""}${known ? "" : " unknown"}">
+      <div class="vital-head"><span class="vital-name">${label}</span><span class="vital-value">${state}</span></div>
+      <div class="vital-track" role="img" aria-label="${spoken}, normal ${lo} to ${hi}">
+        <i class="vital-band" style="left:${at(lo)}%;width:${at(hi) - at(lo)}%"></i>${known ? `<i class="vital-marker" style="left:${at(v)}%"></i>` : ""}
+      </div>
+      <div class="vital-foot"><span>${min}</span><span>Normal ${lo} to ${hi}</span><span>${max}</span></div>
+    </li>`;
+  }).join("")}</ul>`;
   document.querySelector("#snapshot-symptoms").innerHTML = patient.symptoms.length
     ? `<ul class="plain-list">${patient.symptoms.map(name => `<li>${name}</li>`).join("")}</ul>`
     : '<p class="muted-line">None selected</p>';
@@ -329,6 +385,10 @@ symptomList.addEventListener("change", event => {
 });
 form.addEventListener("submit", diagnose);
 severityForm.addEventListener("submit", buildTreatmentPlan);
+document.querySelector("#print-results").addEventListener("click", () => {
+  document.querySelector("#print-meta").textContent = `Carepath assessment summary, printed ${new Date().toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" })}`;
+  window.print();
+});
 document.querySelector("#back-to-intake").addEventListener("click", showIntake);
 document.querySelector("#back-to-severity").addEventListener("click", showSeverity);
 document.querySelector("#new-assessment").addEventListener("click", () => {

@@ -12,6 +12,7 @@
   <script src="/app.js" defer></script>
   <script src="/surveillance.js" defer></script>
   <script src="/comparison.js" defer></script>
+  <script src="/assessments.js" defer></script>
 </head>
 <body>
   <div class="app">
@@ -20,6 +21,7 @@
       <nav class="sidenav" aria-label="Sections">
         <p class="nav-group">Clinical</p>
         <button class="topnav-tab active" type="button" data-tab="assessment" data-title="Patient assessment" aria-current="page">Patient assessment</button>
+        <button class="topnav-tab" type="button" data-tab="assessments" data-title="Past assessments">Past assessments</button>
         <p class="nav-group">Monitoring</p>
         <button class="topnav-tab" type="button" data-tab="surveillance" data-title="Outbreak surveillance">Outbreak surveillance <span class="tab-badge hidden" id="alert-badge" aria-label="open alerts">0</span></button>
         
@@ -120,6 +122,7 @@
               <p class="step-line">Step 3 of 3</p>
               <h1 id="results-title">Assessment summary</h1>
               <p class="intro-copy">Patient: <strong id="result-patient-name"></strong></p>
+              <p class="print-only" id="print-meta"></p>
             </div>
             <p class="severity-result" id="severity-result"></p>
           </div>
@@ -142,9 +145,26 @@
                 <div id="snapshot-symptoms"></div>
               </section>
               <p class="review-line"><strong>Clinician review required.</strong> This output supports a decision and does not replace one.</p>
-              <button class="secondary-button" id="new-assessment" type="button">Start a new assessment</button>
+              <div class="result-actions">
+                <button class="primary-button" id="print-results" type="button">Print summary</button>
+                <button class="secondary-button" id="new-assessment" type="button">Start a new assessment</button>
+              </div>
             </aside>
           </div>
+        </section>
+
+        <section class="view assessments-view hidden" id="assessments-view" aria-labelledby="past-title">
+          <div class="page-intro">
+            <h1 id="past-title">Past assessments</h1>
+            <p class="intro-copy">Every finished assessment, newest first, with anything the atypical-presentation model found unusual. Patient names are never saved, so they only appear here for assessments made in this browser session.</p>
+          </div>
+          <p class="form-error hidden" id="past-error" role="alert"></p>
+          <div class="surv-controls">
+            <label class="field" for="past-filter"><span>Show</span><select id="past-filter"><option value="all">All assessments</option><option value="atypical">Only those with atypical findings</option></select></label>
+          </div>
+          <p class="surv-status" id="past-summary" role="status"></p>
+          <section class="surv-section" id="past-list" aria-live="polite"></section>
+          <p class="surv-note">Each assessment is also counted, as numbers only, in this clinic's daily summary for outbreak surveillance. See the Outbreak surveillance tab.</p>
         </section>
 
         <section class="view surveillance-view hidden" id="surveillance-view" aria-labelledby="surv-title">
@@ -171,6 +191,8 @@
               <h2 class="section-title">Active alerts</h2>
               <div class="alert-list" id="alert-list" aria-live="polite"></div>
             </section>
+
+            <section class="surv-section" id="clinic-feed" aria-live="polite"></section>
 
             <section class="surv-section">
               <h2 class="section-title">Last 7 days against normal <span class="surv-day" id="trend-day"></span></h2>

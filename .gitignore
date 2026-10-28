@@ -9,3 +9,4 @@ predictions.csv
 
 # objective B: node summaries and alerts
 data/outbreak.db
+data/assessments.db

@@ -1,0 +1,64 @@
+sequenceDiagram
+  autonumber
+  actor C as Clinician
+  participant UI as Browser (app.js)
+  participant API as FastAPI + require_api_key
+  participant E1 as Disease model (E1)
+  participant A as AtypicalDetector (A)
+  participant E2 as TreatmentRecommender (E2)
+  participant AS as Assessments router
+  participant DB1 as assessments.db
+  participant DB2 as outbreak.db (Store)
+  participant B as OutbreakDetector (B)
+  participant W as Webhook
+
+  rect rgb(232,240,254)
+  Note over C,API: Session
+  UI->>API: POST /ui/session (localhost only)
+  API-->>UI: 204 + carepath_session cookie
+  end
+
+  rect rgb(230,244,234)
+  Note over C,E2: Patient assessment
+  C->>UI: Enter age, vitals, symptoms, submit
+  UI->>API: POST /predict
+  API->>E1: predict(patient)
+  E1-->>API: disease and probability, alternatives
+  API-->>UI: PredictOut
+  UI->>API: POST /api/atypical/assess (patient, disease_id)
+  API->>A: assess(patient, disease_id)
+  A-->>UI: atypical_flag, novelty_flag, reasons
+  C->>UI: Choose severity
+  UI->>API: POST /recommend-treatment
+  API->>E2: recommend(patient, disease, severity)
+  E2-->>UI: ranked treatments, success prob, recovery days
+  end
+
+  rect rgb(255,244,224)
+  Note over UI,DB2: Logging and surveillance sharing (counts only)
+  UI->>API: POST /api/assessments (no patient name)
+  API->>AS: log_assessment(body)
+  AS->>DB1: INSERT assessment
+  AS->>DB1: day counts per disease + ATYP
+  AS->>DB2: put_summaries(hospital LIVE, day, counts)
+  AS-->>UI: id, surveillance.shared
+  end
+
+  rect rgb(253,232,232)
+  Note over C,W: Outbreak scan
+  C->>UI: Open Outbreak surveillance, replay a day
+  UI->>API: POST /api/outbreak/scan (as_of)
+  API->>B: run_scan(store, detector, as_of)
+  B->>DB2: load_summaries(as_of)
+  DB2-->>B: node summaries from all hospitals
+  B->>B: Panel, Stats, cross-site consensus
+  B->>DB2: upsert_alert, resolve_stale
+  opt new or escalated alert
+    B->>W: POST alert
+  end
+  B-->>UI: alerts, new count, resolved
+  C->>UI: Acknowledge alert
+  UI->>API: POST /api/outbreak/alerts/id/ack
+  API->>DB2: acknowledge(id)
+  API-->>UI: updated alert
+  end

@@ -1,0 +1,495 @@
+<title>CarePath Diagrams</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+/* Layout: one column, sticky anchor nav, each diagram on a white panel so it reads in both themes */
+:root { --bg:#f6f7f9; --fg:#1b1f24; --muted:#59626d; --line:#d5dae0; --accent:#2f5d8c; --panel:#ffffff;
+  --sans:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#14181d; --fg:#e6e9ed; --muted:#9aa4af; --line:#2c333b; --accent:#8fb4dc; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#14181d; --fg:#e6e9ed; --muted:#9aa4af; --line:#2c333b; --accent:#8fb4dc; color-scheme:dark; }
+body { background:var(--bg); color:var(--fg); font:15px/1.55 var(--sans); padding-block:24px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); }
+main { max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:40px; }
+header { display:flex; flex-direction:column; gap:6px; }
+h1 { font-size:26px; margin:0; text-wrap:balance; }
+header p { margin:0; color:var(--muted); max-width:65ch; }
+nav { display:flex; flex-wrap:wrap; gap:8px 20px; padding-block:10px; border-block:1px solid var(--line); }
+nav a { color:var(--accent); text-decoration:none; font-weight:600; }
+nav a:hover, nav a:focus-visible { text-decoration:underline; }
+section { display:flex; flex-direction:column; gap:10px; min-width:0; scroll-margin-top:16px; }
+h2 { font-size:20px; margin:0; }
+.cap { margin:0; color:var(--muted); max-width:70ch; }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:16px; overflow-x:auto; color:#1b1f24; }
+.panel pre.mermaid { margin:0; text-align:center; font-family:var(--sans); }
+.src { margin:0; font:12px var(--mono); color:var(--muted); }
+</style>
+<main>
+<header>
+<h1>CarePath Diagrams</h1>
+<p>Five views of the federated clinical decision support system, drawn from the code in this repository.</p>
+</header>
+<nav><a href="#architecture">System architecture</a><a href="#dfd">Data flow diagram</a><a href="#usecase">Use case diagram</a><a href="#class">Class diagram</a><a href="#sequence">Sequence diagram</a></nav>
+<section id="architecture">
+<h2>System architecture</h2>
+<p class="cap">Five layers: the web app, one FastAPI process with shared authentication, the loaded models, the data stores, and the offline Flower federation that writes the models the API serves.</p>
+<div class="panel"><pre class="mermaid">%%{init: {'theme':'neutral'}}%%
+flowchart TB
+  classDef ext fill:#fff,stroke:#555,stroke-dasharray:4 3,color:#1b1f24
+  classDef ui fill:#e8f0fe,stroke:#4a6fa5,color:#1b1f24
+  classDef api fill:#e6f4ea,stroke:#3d8b5a,color:#1b1f24
+  classDef ml fill:#fff4e0,stroke:#c98a1b,color:#1b1f24
+  classDef store fill:#f3e8fd,stroke:#8a55b5,color:#1b1f24
+  classDef fl fill:#fde8e8,stroke:#b55555,color:#1b1f24
+
+  Clinician(["Clinician (browser)"]):::ext
+  Operator(["ML engineer (CLI)"]):::ext
+  Webhook(["Alert webhook (optional, OUTBREAK_WEBHOOK_URL)"]):::ext
+
+  subgraph FE["Presentation layer: static web app served by FastAPI"]
+    direction LR
+    T1["Patient assessment&lt;br/&gt;app.js"]:::ui
+    T2["Past assessments&lt;br/&gt;assessments.js"]:::ui
+    T3["Outbreak surveillance&lt;br/&gt;surveillance.js"]:::ui
+    T4["Federated results&lt;br/&gt;federated.js"]:::ui
+    T5["Model comparison&lt;br/&gt;comparison.js"]:::ui
+  end
+
+  subgraph BE["Application layer: FastAPI backend.main (single process)"]
+    direction TB
+    MW["Middleware: CORS, Cache-Control no-cache&lt;br/&gt;POST /ui/session issues carepath_session cookie, localhost only"]:::api
+    SEC["backend.security.require_api_key&lt;br/&gt;X-API-Key header or UI session cookie"]:::api
+    subgraph RT["Routers"]
+      direction LR
+      R1["E1 disease&lt;br/&gt;POST /predict"]:::api
+      R2["E2 treatment&lt;br/&gt;POST /recommend-treatment"]:::api
+      R3["A atypical&lt;br/&gt;POST /api/atypical/assess"]:::api
+      R4["B outbreak&lt;br/&gt;/api/outbreak/*"]:::api
+      R5["C federated&lt;br/&gt;GET /api/federated/*"]:::api
+      R6["assessments&lt;br/&gt;/api/assessments*"]:::api
+    end
+  end
+
+  subgraph ML["Model layer: loaded once at API start-up"]
+    direction LR
+    M1["XGBoost disease classifier"]:::ml
+    M2["TreatmentRecommender&lt;br/&gt;XGBoost success + recovery days"]:::ml
+    M3["AtypicalDetector&lt;br/&gt;symptom and vitals surprise scores"]:::ml
+    M4["OutbreakDetector&lt;br/&gt;Panel, Stats, consensus"]:::ml
+  end
+
+  subgraph DS["Data layer"]
+    direction LR
+    D1[("assessments.db&lt;br/&gt;SQLite, no patient name")]:::store
+    D2[("outbreak.db&lt;br/&gt;SQLite: daily count summaries + alerts")]:::store
+    D3[("Model files&lt;br/&gt;models/objectiveC/model/task/*.json")]:::store
+    D4[("Reports&lt;br/&gt;report.json, comparison.json")]:::store
+  end
+
+  subgraph FLL["Federated layer: Flower, offline, run by the operator"]
+    direction LR
+    SL["SuperLink + ServerApp&lt;br/&gt;FedXgbCyclic, run_protocol&lt;br/&gt;NodeRegistry identity checks, TLS"]:::fl
+    subgraph NODES["Hospital nodes H001 to H010 (SuperNode + ClientApp)"]
+      direction LR
+      N1["local partition&lt;br/&gt;H001"]:::fl
+      N2["local partition&lt;br/&gt;H002"]:::fl
+      N3["local partition&lt;br/&gt;H010"]:::fl
+    end
+    CMP["carepath_fl.compare / report&lt;br/&gt;federated vs local vs central"]:::fl
+  end
+
+  Clinician --&gt; FE
+  FE -- "HTTPS JSON" --&gt; MW --&gt; SEC --&gt; RT
+  R1 --&gt; M1
+  R2 --&gt; M2
+  R3 --&gt; M3
+  R4 --&gt; M4
+  R6 --&gt; D1
+  R6 -- "counts only" --&gt; D2
+  R4 &lt;--&gt; D2
+  R5 --&gt; D4
+  R4 -- "new or escalated alert" --&gt; Webhook
+  M1 -. "loads" .-&gt; D3
+  M2 -. "loads" .-&gt; D3
+  M3 -. "loads" .-&gt; D3
+  M4 -. "loads" .-&gt; D3
+  Operator --&gt; SL
+  Operator --&gt; CMP
+  SL &lt;-- "model updates and summary statistics only" --&gt; NODES
+  SL -- "writes federated model" --&gt; D3
+  CMP --&gt; D4</pre></div>
+<p class="src">Source: diagrams/1_system_architecture.mmd</p>
+</section><section id="dfd">
+<h2>Data flow diagram</h2>
+<p class="cap">Level 1. Patient rows stay in hospital partitions and the assessments log. Only counts go to the outbreak store, and only model updates or statistics leave a hospital during training.</p>
+<div class="panel"><pre class="mermaid">%%{init: {'theme':'neutral'}}%%
+flowchart LR
+  classDef ent fill:#fff,stroke:#333,color:#1b1f24,stroke-width:2px
+  classDef proc fill:#e6f4ea,stroke:#3d8b5a,color:#1b1f24,stroke-width:2px
+  classDef store fill:#f3e8fd,stroke:#8a55b5,color:#1b1f24
+
+  CL["Clinician"]:::ent
+  HN["Hospital nodes H001-H010"]:::ent
+  OP["ML engineer"]:::ent
+  WH["Alert webhook"]:::ent
+
+  P1(("1.0&lt;br/&gt;Assess patient")):::proc
+  P2(("2.0&lt;br/&gt;Log assessment and share counts")):::proc
+  P3(("3.0&lt;br/&gt;Detect outbreaks")):::proc
+  P4(("4.0&lt;br/&gt;Train federated models")):::proc
+  P5(("5.0&lt;br/&gt;Compare and report")):::proc
+
+  D1[("D1 assessments.db")]:::store
+  D2[("D2 outbreak.db&lt;br/&gt;summaries and alerts")]:::store
+  D3[("D3 Model store")]:::store
+  D4[("D4 Hospital encounter&lt;br/&gt;partitions (local only)")]:::store
+  D5[("D5 Reports")]:::store
+
+  CL -- "age, gender, vitals, symptoms" --&gt; P1
+  P1 -- "disease + probability, atypical flags + reasons,&lt;br/&gt;ranked treatments" --&gt; CL
+  D3 -- "trained models" --&gt; P1
+  CL -- "severity choice" --&gt; P1
+
+  P1 -- "finished assessment" --&gt; P2
+  P2 -- "full record, no patient name" --&gt; D1
+  D1 -- "today's cases" --&gt; P2
+  P2 -- "per-disease case counts and symptom counts,&lt;br/&gt;ATYP row" --&gt; D2
+  CL -- "view history" --&gt; P2
+  P2 -- "past assessments, clinic summary" --&gt; CL
+
+  HN -- "daily count summaries (node.py)" --&gt; D2
+  CL -- "replay day, acknowledge alert" --&gt; P3
+  D2 -- "summaries up to as_of" --&gt; P3
+  D3 -- "thresholds" --&gt; P3
+  P3 -- "alerts, trends, hospital grid" --&gt; CL
+  P3 -- "upsert alerts, resolve stale" --&gt; D2
+  P3 -- "new or escalated alert" --&gt; WH
+
+  OP -- "flwr run, task name" --&gt; P4
+  D4 -- "rows read inside each hospital" --&gt; P4
+  P4 -- "model updates or statistics only" --&gt; D3
+  HN -. "participate" .-&gt; P4
+
+  OP -- "run compare / report" --&gt; P5
+  D3 -- "federated, local, central models" --&gt; P5
+  P5 -- "metrics with confidence intervals" --&gt; D5
+  D5 -- "federated overview, comparison" --&gt; CL</pre></div>
+<p class="src">Source: diagrams/2_data_flow_diagram.mmd</p>
+</section><section id="usecase">
+<h2>Use case diagram</h2>
+<p class="cap">Roles are logical. The web app has one login for every tab; the code does not separate clinician and surveillance duties.</p>
+<div class="panel"><pre class="mermaid">%%{init: {'theme':'neutral'}}%%
+flowchart LR
+  classDef actor fill:#fff,stroke:#333,color:#1b1f24,stroke-width:2px
+  classDef uc fill:#e8f0fe,stroke:#4a6fa5,color:#1b1f24
+  classDef sys fill:#fff4e0,stroke:#c98a1b,color:#1b1f24
+
+  CL["Clinician"]:::actor
+  EN["ML engineer"]:::actor
+  HN["Hospital node&lt;br/&gt;(system actor)"]:::actor
+  WH["Alert webhook&lt;br/&gt;(external system)"]:::actor
+
+  subgraph SYS["CarePath: federated clinical decision support"]
+    direction TB
+    subgraph A["Patient care"]
+      UC1(["Enter patient details&lt;br/&gt;and symptoms"]):::uc
+      UC2(["Predict disease"]):::uc
+      UC3(["Flag atypical or&lt;br/&gt;novel presentation"]):::uc
+      UC4(["Get ranked treatment plan"]):::uc
+      UC5(["Change severity&lt;br/&gt;and re-plan"]):::uc
+      UC6(["Browse past assessments"]):::uc
+    end
+    subgraph B["Outbreak surveillance"]
+      UC7(["Monitor hospital grid&lt;br/&gt;and trends"]):::uc
+      UC8(["Replay a day / run scan"]):::uc
+      UC9(["Acknowledge alert"]):::uc
+      UC10(["Review past outbreaks"]):::uc
+      UC11(["Share daily counts"]):::sys
+      UC12(["Notify of new&lt;br/&gt;or escalated alert"]):::sys
+    end
+    subgraph C["Federated learning"]
+      UC13(["View federated results"]):::uc
+      UC14(["View model comparison"]):::uc
+      UC15(["Train federated model"]):::uc
+      UC16(["Generate credentials&lt;br/&gt;and register hospitals"]):::uc
+      UC17(["Verify node identity&lt;br/&gt;and security"]):::sys
+      UC18(["Train on local data&lt;br/&gt;and send updates"]):::sys
+      UC19(["Compare federated vs&lt;br/&gt;local vs central"]):::uc
+    end
+  end
+
+  CL --- UC1
+  CL --- UC2
+  CL --- UC4
+  CL --- UC5
+  CL --- UC6
+  CL --- UC7
+  CL --- UC8
+  CL --- UC9
+  CL --- UC10
+  CL --- UC13
+  CL --- UC14
+  EN --- UC15
+  EN --- UC16
+  EN --- UC19
+  HN --- UC11
+  HN --- UC18
+  UC12 --- WH
+
+  UC2 -. "include" .-&gt; UC1
+  UC2 -. "include" .-&gt; UC3
+  UC4 -. "include" .-&gt; UC2
+  UC5 -. "extend" .-&gt; UC4
+  UC8 -. "include" .-&gt; UC11
+  UC8 -. "extend: new alert" .-&gt; UC12
+  UC15 -. "include" .-&gt; UC17
+  UC15 -. "include" .-&gt; UC18
+  UC4 -. "include: log and share counts" .-&gt; UC11</pre></div>
+<p class="src">Source: diagrams/3_use_case_diagram.mmd</p>
+</section><section id="class">
+<h2>Class diagram</h2>
+<p class="cap">Main classes and modules by objective: assessments, A, E, B, and the Flower app in C. Task modules share one interface that the server and client apps call.</p>
+<div class="panel"><pre class="mermaid">%%{init: {'theme':'neutral'}}%%
+classDiagram
+  direction LR
+
+  class FastAPIApp {
+    +include_router(router)
+    +create_ui_session()
+    +revalidate_frontend()
+  }
+  class Security {
+    +API_KEY: str
+    +UI_SESSION_TOKEN: str
+    +require_api_key(key, cookie)
+  }
+  class AssessmentIn {
+    +age: int
+    +gender: str
+    +vitals: dict
+    +symptoms: list
+    +disease_id: str
+    +confidence: float
+    +atypical_flag: bool
+    +novelty_flag: bool
+    +severity_id: str
+    +treatment: str
+  }
+  class SeverityIn {
+    +severity_id: str
+    +treatment: str
+  }
+  class AssessmentsRouter {
+    +log_assessment(body)
+    +set_severity(id, body)
+    +list_assessments()
+    +clinic_summary()
+    -_day_counts(conn, day)
+    -_push_summary(counts, day)
+  }
+
+  class AtypicalDetector {
+    +p: dict
+    +diseases: list
+    +infer_disease(S, V)
+    +score(df)
+    +reasons(s_row, v_row, k)
+    +assess(patient, disease_id)
+    +assess_df(df)
+  }
+  class TreatmentRecommender {
+    +success_model: XGBClassifier
+    +recovery_model: XGBRegressor
+    +feature_cols: list
+    +candidates(disease, severity)
+    +recommend(patient, disease, severity, top_k)
+    +top_picks(df)
+  }
+  class DiseaseClassifier {
+    &lt;&lt;XGBoost model + meta&gt;&gt;
+    +predict(patient)
+  }
+
+  class NodeSummarizer {
+    +hospital_id: str
+    +region: str
+    +detector: AtypicalDetector
+    +summarize(df)
+  }
+  class Store {
+    +path: Path
+    +put_summaries(df)
+    +load_summaries(as_of)
+    +last_shared_day()
+    +upsert_alert(alert)
+    +resolve_stale(as_of, days)
+    +list_alerts(status)
+    +acknowledge(id)
+  }
+  class Panel {
+    +hospitals: list
+    +diseases: list
+    +days: DatetimeIndex
+    +n: ndarray
+    +reported: ndarray
+  }
+  class Stats {
+    +panel: Panel
+    +p: dict
+    +signals(p)
+    +signature(h, k, t)
+  }
+  class OutbreakDetector {
+    +p: dict
+    +trained: bool
+    +meta: dict
+    +alerts_at(stats, signals, t)
+    +scan_panel(panel, as_of)
+    +trends(panel, as_of)
+  }
+  class Notifier {
+    +notify(alert, change)
+  }
+
+  class FedXgbCyclic {
+    &lt;&lt;Flower strategy&gt;&gt;
+    +start(grid, initial_arrays, num_rounds)
+  }
+  class ServerApp {
+    +main(grid, context)
+    +collect_reference(grid, task)
+    +stage_caller(grid, task)
+  }
+  class ClientApp {
+    +train(msg, context)
+    +evaluate(msg, context)
+    +query(msg, context)
+  }
+  class NodeRegistry {
+    +hospital_by_node: dict
+    +from_env()
+    +check_connected(node_ids)
+    +check_complete(node_ids)
+    +check_reply(sender, claimed)
+  }
+  class IdentityError
+  class FederatedTask {
+    &lt;&lt;interface: carepath_fl.tasks&gt;&gt;
+    +MODELS
+    +COLUMNS
+    +fit_rows(df)
+    +local_train(models, df, iters, seed)
+    +local_evaluate(models, df)
+    +client_stage(stage, state, df)
+    +run_protocol(call)
+    +write_model(models, meta)
+  }
+  class DiseaseTask
+  class TreatmentTask
+  class AtypicalTask
+  class OutbreakTask
+  class Deployment {
+    +register_hospitals(hospitals)
+    +start_hospitals(hospitals)
+    +run_app(task)
+    +online_nodes()
+  }
+
+  FastAPIApp o-- AssessmentsRouter
+  FastAPIApp ..&gt; Security : uses
+  AssessmentsRouter ..&gt; AssessmentIn
+  AssessmentsRouter ..&gt; SeverityIn
+  AssessmentsRouter ..&gt; Store : pushes counts
+  NodeSummarizer --&gt; AtypicalDetector
+  NodeSummarizer ..&gt; Store : writes summaries
+  OutbreakDetector ..&gt; Panel : scans
+  Stats --&gt; Panel
+  OutbreakDetector ..&gt; Stats
+  OutbreakDetector ..&gt; Store : load / upsert
+  OutbreakDetector ..&gt; Notifier
+  ServerApp --&gt; FedXgbCyclic
+  ServerApp --&gt; NodeRegistry
+  ServerApp ..&gt; FederatedTask
+  ClientApp ..&gt; FederatedTask
+  NodeRegistry ..&gt; IdentityError : raises
+  FederatedTask &lt;|.. DiseaseTask
+  FederatedTask &lt;|.. TreatmentTask
+  FederatedTask &lt;|.. AtypicalTask
+  FederatedTask &lt;|.. OutbreakTask
+  Deployment ..&gt; ServerApp : flwr run
+  Deployment "1" o-- "10" ClientApp : SuperNodes
+  DiseaseTask ..&gt; DiseaseClassifier : exports
+  TreatmentTask ..&gt; TreatmentRecommender : exports
+  AtypicalTask ..&gt; AtypicalDetector : exports
+  OutbreakTask ..&gt; OutbreakDetector : exports</pre></div>
+<p class="src">Source: diagrams/4_class_diagram.mmd</p>
+</section><section id="sequence">
+<h2>Sequence diagram</h2>
+<p class="cap">One session: assess a patient, log the assessment and push counts to the outbreak store, then scan for outbreaks and acknowledge an alert.</p>
+<div class="panel"><pre class="mermaid">%%{init: {'theme':'neutral'}}%%
+sequenceDiagram
+  autonumber
+  actor C as Clinician
+  participant UI as Browser (app.js)
+  participant API as FastAPI + require_api_key
+  participant E1 as Disease model (E1)
+  participant A as AtypicalDetector (A)
+  participant E2 as TreatmentRecommender (E2)
+  participant AS as Assessments router
+  participant DB1 as assessments.db
+  participant DB2 as outbreak.db (Store)
+  participant B as OutbreakDetector (B)
+  participant W as Webhook
+
+  rect rgb(232,240,254)
+  Note over C,API: Session
+  UI-&gt;&gt;API: POST /ui/session (localhost only)
+  API--&gt;&gt;UI: 204 + carepath_session cookie
+  end
+
+  rect rgb(230,244,234)
+  Note over C,E2: Patient assessment
+  C-&gt;&gt;UI: Enter age, vitals, symptoms, submit
+  UI-&gt;&gt;API: POST /predict
+  API-&gt;&gt;E1: predict(patient)
+  E1--&gt;&gt;API: disease and probability, alternatives
+  API--&gt;&gt;UI: PredictOut
+  UI-&gt;&gt;API: POST /api/atypical/assess (patient, disease_id)
+  API-&gt;&gt;A: assess(patient, disease_id)
+  A--&gt;&gt;UI: atypical_flag, novelty_flag, reasons
+  C-&gt;&gt;UI: Choose severity
+  UI-&gt;&gt;API: POST /recommend-treatment
+  API-&gt;&gt;E2: recommend(patient, disease, severity)
+  E2--&gt;&gt;UI: ranked treatments, success prob, recovery days
+  end
+
+  rect rgb(255,244,224)
+  Note over UI,DB2: Logging and surveillance sharing (counts only)
+  UI-&gt;&gt;API: POST /api/assessments (no patient name)
+  API-&gt;&gt;AS: log_assessment(body)
+  AS-&gt;&gt;DB1: INSERT assessment
+  AS-&gt;&gt;DB1: day counts per disease + ATYP
+  AS-&gt;&gt;DB2: put_summaries(hospital LIVE, day, counts)
+  AS--&gt;&gt;UI: id, surveillance.shared
+  end
+
+  rect rgb(253,232,232)
+  Note over C,W: Outbreak scan
+  C-&gt;&gt;UI: Open Outbreak surveillance, replay a day
+  UI-&gt;&gt;API: POST /api/outbreak/scan (as_of)
+  API-&gt;&gt;B: run_scan(store, detector, as_of)
+  B-&gt;&gt;DB2: load_summaries(as_of)
+  DB2--&gt;&gt;B: node summaries from all hospitals
+  B-&gt;&gt;B: Panel, Stats, cross-site consensus
+  B-&gt;&gt;DB2: upsert_alert, resolve_stale
+  opt new or escalated alert
+    B-&gt;&gt;W: POST alert
+  end
+  B--&gt;&gt;UI: alerts, new count, resolved
+  C-&gt;&gt;UI: Acknowledge alert
+  UI-&gt;&gt;API: POST /api/outbreak/alerts/id/ack
+  API-&gt;&gt;DB2: acknowledge(id)
+  API--&gt;&gt;UI: updated alert
+  end</pre></div>
+<p class="src">Source: diagrams/5_sequence_diagram.mmd</p>
+</section>
+</main>
